@@ -1,0 +1,3957 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <style>
+    :root{
+      --bg0:#07070a;
+      --bg1:#0c0d12;
+      --panel: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.10);
+      --text:#eef0f6;
+      --muted: rgba(238,240,246,0.65);
+
+      --green: rgba(120,255,160,0.22);
+      --red: rgba(255,120,120,0.22);
+      --yellow: rgba(255,220,90,.22);
+
+      --radius: 18px;
+      --shadow: 0 20px 60px rgba(0,0,0,0.55);
+    }
+
+    *{ box-sizing:border-box; }
+
+    .almost{ background: rgba(130,170,255,.18); }
+
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 45% 25%, rgba(255,255,255,0.08), transparent 60%),
+        radial-gradient(900px 520px at 70% 20%, rgba(130,170,255,0.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width:98vw;
+      margin:0 auto;
+      padding:22px 16px 36px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .topActions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:#fff;
+      box-shadow:0 0 0 6px rgba(255,255,255,.06);
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .btnPrimary{ background:rgba(255,255,255,.14); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn:focus-visible{
+      outline:2px solid rgba(120,255,160,.8);
+      outline-offset:2px;
+    }
+    .langBtn[data-active="1"]{
+      background:rgba(120,255,160,.16);
+      border-color:rgba(120,255,160,.45);
+    }
+    .mobileModeBtn[data-active="1"]{
+      background:rgba(120,255,160,.16);
+      border-color:rgba(120,255,160,.45);
+    }
+
+    .title{
+      font-size:48px;
+      font-weight:800;
+      letter-spacing:-0.6px;
+      margin:10px 0 4px;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:18px;
+    }
+    .pageHeader{
+      margin-bottom:18px;
+    }
+    .mobileNav{
+      display:none;
+    }
+    .mobileTab{
+      appearance:none;
+      border:none;
+      border-bottom:2px solid transparent;
+      background:none;
+      color:var(--muted);
+      padding:10px 2px 12px;
+      font-size:13px;
+      font-weight:700;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    .mobileTab[data-active="1"]{
+      color:var(--text);
+      border-bottom-color:rgba(120,255,160,.78);
+    }
+    .mobileTab:focus-visible{
+      outline:2px solid rgba(120,255,160,.55);
+      outline-offset:2px;
+      border-radius:4px;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin-bottom:14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .pill{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:13px;
+      width: 100%;
+    }
+
+    .tag{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      white-space:nowrap;
+    }
+    .playable{ background:var(--green); }
+    .missing{ background:var(--red); }
+    .locked{ background:var(--yellow); }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .availabilityControls{
+      display:grid;
+      grid-template-columns:repeat(12, minmax(0, 1fr));
+      gap:10px;
+      margin-bottom:10px;
+      align-items:stretch;
+    }
+    .controlCard{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width:0;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+    }
+    .controlCardPlayer{ grid-column:span 7; }
+    .controlCardPreset{ grid-column:span 5; }
+    .controlCardTools{ grid-column:1 / -1; }
+    .fieldStack{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .fieldStack label,
+    .controlLabel{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .fieldStack select{
+      width:100%;
+      min-width:0;
+    }
+    .actionRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .actionRow .btn,
+    .actionRow .chip{
+      flex:1 1 0;
+      min-width:0;
+    }
+    .controlsMeta{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:2px;
+    }
+    .mobileSheetModeBar{
+      display:none;
+      align-items:center;
+      gap:10px;
+      margin-top:10px;
+      margin-bottom:10px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+    }
+    .mobileSheetModeToggle{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:6px;
+      flex:0 0 180px;
+      min-width:0;
+    }
+    .mobileSheetModeBtn{
+      min-width:0;
+      border-radius:10px;
+    }
+    .mobileSheetModeBtn[data-active="1"]{
+      background:rgba(120,255,160,.16);
+      border-color:rgba(120,255,160,.45);
+    }
+    .mobileSheetModeHint{
+      flex:1 1 auto;
+      min-width:0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    select{
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+      min-width:220px;
+    }
+    select:hover{ border-color: rgba(120,255,160,.45); }
+    select:focus{
+      outline:none;
+      border-color: rgba(120,255,160,.65);
+      box-shadow:0 0 0 3px rgba(120,255,160,.15);
+    }
+    select option{
+      background:#0b0c10;
+      color:#eef0f6;
+    }
+    select option:checked{
+      background:#161a22;
+      color:#eef0f6;
+    }
+    /* Collapsible campaign bubbles */
+    .campHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .campLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .caret{
+      width:10px;height:10px;
+      border-right:2px solid rgba(255,255,255,.75);
+      border-bottom:2px solid rgba(255,255,255,.75);
+      transform: rotate(-45deg);
+      transition: transform .12s ease;
+      opacity:.9;
+      flex:0 0 auto;
+    }
+
+    .pill[data-open="1"] .caret{
+      transform: rotate(45deg);
+    }
+    .panel[data-open="1"] > .campHeader .caret{
+      transform: rotate(45deg);
+    }
+
+    .campMeta{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .campBody{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.12);
+      padding-top:8px;
+      display:none;
+    }
+
+    .pill[data-open="1"] .campBody{
+      display:block;
+    }
+
+    /* Tracker pills */
+    .trk{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:13px;
+    }
+    .trk .small{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .trkOk{ background: rgba(120,255,160,.12); }
+    .trkBad{ background: rgba(255,120,120,.12); }
+
+    .gridWrap{
+      width:100%;
+      max-height:72vh;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      touch-action:pan-x pan-y pinch-zoom;
+      scrollbar-gutter:stable both-edges;
+      border-radius:var(--radius);
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.25);
+    }
+
+    .grid{
+      display:grid;
+      gap:0;
+      user-select:none;
+      min-width:100%;
+    }
+
+    .head,.cell{
+      padding:8px 6px;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.03);
+    }
+
+    .head{
+      position:sticky;
+      top:0;
+      z-index:3;
+      font-weight:700;
+      background:#151922;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,.1);
+    }
+
+    .dateHead{
+      position:sticky;
+      left:0;
+      z-index:2;
+      background:#121722;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,.1);
+    }
+
+    .corner{
+      position:sticky;
+      top:0;left:0;
+      z-index:4;
+      background:#1a1f2b;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(255,255,255,.14);
+    }
+
+    .slotCell{
+      cursor:pointer;
+      text-align:center;
+      min-width:80px;
+      touch-action: manipulation;
+    }
+    .slotCellView{
+      cursor:grab;
+    }
+    .whoCell{
+      cursor:default;
+      font-weight:700;
+      font-size:11px;
+    }
+    .whoLegend{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .whoSwatch{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      margin-right:5px;
+      vertical-align:middle;
+    }
+
+    .selected{ background:var(--green)!important; }
+    .unselected{ background:var(--red)!important; }
+    .lockedCell{
+      background:rgba(255,255,255,.10)!important;
+      border-color:rgba(255,255,255,.22)!important;
+      cursor:not-allowed;
+      font-weight:700;
+      font-size:11px;
+      letter-spacing:.6px;
+      color:rgba(238,240,246,.9);
+    }
+
+    .dayLabel{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+
+    .dayBtn{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+    }
+
+    .status{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+      white-space:pre-wrap;
+    }
+
+    .dirtyFlag{
+      font-size:12px;
+      color:rgba(255,220,90,.85);
+    }
+
+    .savedFlag{
+      font-size:12px;
+      color:rgba(120,255,160,.8);
+    }
+    .controlsGroup{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      background:rgba(255,255,255,.04);
+    }
+    .skeleton{
+      position:relative;
+      overflow:hidden;
+      border-radius:12px;
+      min-height:46px;
+      width:100%;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .skeleton::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      transform:translateX(-100%);
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      animation:shimmer 1.15s infinite;
+    }
+    @keyframes shimmer{
+      to{ transform:translateX(100%); }
+    }
+    .tour{
+      margin-bottom:10px;
+      border-radius:14px;
+      border:1px solid rgba(120,255,160,.35);
+      background:rgba(120,255,160,.10);
+      padding:10px 12px;
+      font-size:12px;
+      color:rgba(238,240,246,.9);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .tutorialGrid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+    }
+    .tutorialCard{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:14px;
+      background:rgba(255,255,255,.05);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .tutorialStep{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid rgba(120,255,160,.35);
+      background:rgba(120,255,160,.16);
+    }
+    .tutorialTitle{
+      font-size:14px;
+      font-weight:700;
+    }
+    .tutorialText{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .tutorialTips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .tutorialTip{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      color:var(--muted);
+      background:rgba(255,255,255,.05);
+    }
+    .toastWrap{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:10000;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-width:360px;
+    }
+    .toast{
+      border-radius:12px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(12,13,18,.96);
+      font-size:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.4);
+    }
+    .toast.ok{ border-color:rgba(120,255,160,.45); }
+    .toast.err{ border-color:rgba(255,120,120,.45); }
+    .paintHud{
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      z-index:9990;
+      display:none;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(12,13,18,.95);
+      box-shadow:0 10px 30px rgba(0,0,0,.4);
+      font-size:12px;
+    }
+    .paintHud[data-open="1"]{ display:flex; }
+    .paintHud .btn[data-active="1"]{
+      background:rgba(120,255,160,.16);
+      border-color:rgba(120,255,160,.45);
+    }
+    .paintHud .btn[data-mode="remove"][data-active="1"]{
+      background:rgba(255,120,120,.14);
+      border-color:rgba(255,120,120,.45);
+    }
+    .paintState{
+      font-weight:700;
+      color:rgba(120,255,160,.95);
+      min-width:90px;
+    }
+    .paintState.remove{ color:rgba(255,120,120,.95); }
+    .slotHover{
+      box-shadow: inset 0 0 0 2px rgba(120,255,160,.65);
+    }
+    .hoverCol{
+      background:rgba(120,255,160,.09)!important;
+    }
+    .hoverRowHead{
+      background:rgba(120,255,160,.18)!important;
+    }
+    .timeMorning{ border-top:2px solid rgba(130,170,255,.32)!important; }
+    .timeAfternoon{ border-top:2px solid rgba(120,255,160,.32)!important; }
+    .timeEvening{ border-top:2px solid rgba(255,220,90,.32)!important; }
+    .campaignFilters{
+      margin-bottom:10px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .missingLine{
+      font-size:12px;
+      color:var(--muted);
+      margin-left:4px;
+    }
+
+    .busyOverlay{
+      position:fixed;
+      top:14px;
+      right:14px;
+      z-index:9999;
+      display:none;
+      align-items:flex-start;
+      justify-content:flex-end;
+      pointer-events:none; /* non-blocking loader */
+    }
+    .busyOverlay[data-open="1"]{
+      display:flex;
+    }
+    .busyCard{
+      min-width:170px;
+      max-width:320px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(12,13,18,.92);
+      box-shadow:0 8px 24px rgba(0,0,0,.35);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:600;
+      letter-spacing:.1px;
+      font-size:12px;
+    }
+    .busySpinner{
+      width:13px;
+      height:13px;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color:rgba(120,255,160,.95);
+      animation:spin .8s linear infinite;
+      flex:0 0 auto;
+    }
+    @keyframes spin{
+      to { transform: rotate(360deg); }
+    }
+    @media (max-width: 900px){
+      .title{ font-size:34px; }
+      .grid{ min-width:760px; }
+      .slotCell{ min-width:66px; font-size:11px; }
+      .head,.cell{ padding:7px 4px; }
+      .controls .btn{ padding:9px 10px; }
+      .paintHud{ left:10px; right:10px; bottom:10px; justify-content:space-between; }
+      .busyOverlay{
+        top:10px;
+        right:10px;
+      }
+    }
+    body[data-mobile-mode="1"]{
+      -webkit-text-size-adjust:100%;
+    }
+    body[data-mobile-mode="1"] .wrap{
+      max-width:100%;
+      padding:12px 12px max(24px, env(safe-area-inset-bottom));
+    }
+    body[data-mobile-mode="1"] .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      align-items:center;
+      gap:12px;
+      margin:0 -12px 14px;
+      padding:12px;
+      background:rgba(7,7,10,.88);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    body[data-mobile-mode="1"] .brand{
+      flex:0 0 auto;
+    }
+    body[data-mobile-mode="1"] .topActions{
+      display:flex;
+      flex:1 1 auto;
+      flex-wrap:nowrap;
+      gap:8px;
+      width:auto;
+      overflow:auto;
+      scrollbar-width:none;
+    }
+    body[data-mobile-mode="1"] .topActions::-webkit-scrollbar{
+      display:none;
+    }
+    body[data-mobile-mode="1"] .topActions .btn{
+      flex:0 0 auto;
+      min-width:max-content;
+    }
+    body[data-mobile-mode="1"] .title{
+      font-size:30px;
+      line-height:1.08;
+      margin:0 0 4px;
+    }
+    body[data-mobile-mode="1"] .subtitle{
+      font-size:14px;
+      margin-bottom:0;
+    }
+    body[data-mobile-mode="1"] .pageHeader{
+      margin-bottom:8px;
+    }
+    body[data-mobile-mode="1"] .mobileNav{
+      display:flex;
+      gap:14px;
+      align-items:flex-end;
+      overflow:auto;
+      margin:0 -12px 12px;
+      padding:0 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      scrollbar-width:none;
+    }
+    body[data-mobile-mode="1"] .mobileNav::-webkit-scrollbar{
+      display:none;
+    }
+    body[data-mobile-mode="1"] .mobileTab{
+      padding-top:8px;
+      padding-bottom:10px;
+      font-size:13px;
+    }
+    body[data-mobile-mode="1"] .panel{
+      display:none;
+      margin-bottom:0;
+    }
+    body[data-mobile-mode="1"] .panel[data-mobile-active="1"]{
+      display:block;
+    }
+    body[data-mobile-mode="1"] .panel > .campHeader{
+      cursor:default;
+      padding-bottom:8px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    body[data-mobile-mode="1"] .panel > .campHeader .caret,
+    body[data-mobile-mode="1"] .panel > .campHeader [data-i18n="common.toggle_hint"]{
+      display:none;
+    }
+    body[data-mobile-mode="1"] #availabilityBody{
+      display:flex !important;
+      flex-direction:column;
+      gap:10px;
+      margin-top:12px !important;
+    }
+    body[data-mobile-mode="1"] .panel{
+      padding:12px;
+      border-radius:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,.24);
+      backdrop-filter:none;
+    }
+    body[data-mobile-mode="1"] .campHeader{
+      align-items:center;
+      gap:10px;
+      min-height:44px;
+    }
+    body[data-mobile-mode="1"] .campMeta{
+      justify-content:flex-end;
+    }
+    body[data-mobile-mode="1"] .availabilityControls{
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    body[data-mobile-mode="1"] .controlCardPreset{
+      display:none;
+    }
+    body[data-mobile-mode="1"] .controlCard{
+      grid-column:auto;
+      padding:12px;
+      border-radius:10px;
+      background:rgba(255,255,255,.04);
+    }
+    body[data-mobile-mode="1"] .actionRow{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:8px;
+    }
+    body[data-mobile-mode="1"] .controlCardTools .actionRow{
+      display:none;
+    }
+    body[data-mobile-mode="1"] .controlsMeta{
+      gap:8px;
+      padding:0 2px;
+    }
+    body[data-mobile-mode="1"] .controlsMeta > *{
+      flex:1 0 100%;
+    }
+    body[data-mobile-mode="1"] .controlsGroup{
+      width:100%;
+      align-items:center;
+    }
+    body[data-mobile-mode="1"] .controlsGroup > select{
+      flex:1 1 140px;
+      min-width:0;
+    }
+    body[data-mobile-mode="1"] .controlsGroup > .btn{
+      flex:1 1 0;
+      min-width:0;
+    }
+    body[data-mobile-mode="1"] .controlsGroup > .chip{
+      min-width:72px;
+      text-align:center;
+    }
+    body[data-mobile-mode="1"] .btn,
+    body[data-mobile-mode="1"] select,
+    body[data-mobile-mode="1"] .chip{
+      min-height:44px;
+      font-size:14px;
+      border-radius:10px;
+    }
+    body[data-mobile-mode="1"] select{
+      width:100%;
+      min-width:0;
+    }
+    body[data-mobile-mode="1"] .tag{
+      border-radius:8px;
+    }
+    body[data-mobile-mode="1"] .tutorialGrid{
+      grid-template-columns:1fr;
+    }
+    body[data-mobile-mode="1"] .tutorialTips,
+    body[data-mobile-mode="1"] .whoLegend{
+      gap:10px;
+    }
+    body[data-mobile-mode="1"] .tour,
+    body[data-mobile-mode="1"] .tutorialCard,
+    body[data-mobile-mode="1"] .trk,
+    body[data-mobile-mode="1"] .pill{
+      border-radius:10px;
+      box-shadow:none;
+    }
+    body[data-mobile-mode="1"] .tutorialTip,
+    body[data-mobile-mode="1"] .whoLegend > span{
+      width:100%;
+    }
+    body[data-mobile-mode="1"] .whoLegend{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+    body[data-mobile-mode="1"] .campaignFilters,
+    body[data-mobile-mode="1"] #whoBody > .controls{
+      gap:10px;
+      align-items:stretch;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:10px;
+      background:rgba(255,255,255,.04);
+    }
+    body[data-mobile-mode="1"] .campaignFilters > label,
+    body[data-mobile-mode="1"] .campaignFilters > select,
+    body[data-mobile-mode="1"] #whoBody > .controls > label,
+    body[data-mobile-mode="1"] #whoBody > .controls > select{
+      flex:1 0 100%;
+      min-width:0;
+    }
+    body[data-mobile-mode="1"] #whoBody > .controls > .btn{
+      width:100%;
+    }
+    body[data-mobile-mode="1"] .gridWrap{
+      min-height:50vh;
+      max-height:62vh;
+      border-radius:10px;
+    }
+    body[data-mobile-mode="1"] .mobileSheetModeBar{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+    }
+    body[data-mobile-mode="1"] .mobileSheetModeToggle{
+      width:100%;
+      flex:1 1 auto;
+    }
+    body[data-mobile-mode="1"][data-mobile-sheet-mode="view"] .slotCell{
+      touch-action:pan-x pan-y;
+    }
+    body[data-mobile-mode="1"][data-mobile-sheet-mode="edit"] .slotCell{
+      touch-action:none;
+    }
+    body[data-mobile-mode="1"] .dayLabel{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+    body[data-mobile-mode="1"] .dayLabel .controlsGroup{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+    }
+    body[data-mobile-mode="1"] .dayBtn{
+      min-height:36px;
+      border-radius:10px;
+    }
+    body[data-mobile-mode="1"] .paintHud{
+      position:static;
+      left:auto;
+      right:auto;
+      bottom:auto;
+      z-index:auto;
+      display:none;
+      justify-content:space-between;
+      padding:0;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      border-radius:10px;
+    }
+    body[data-mobile-mode="1"] .paintHud[data-open="1"]{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      align-items:stretch;
+    }
+    body[data-mobile-mode="1"] .paintHud .btn{
+      width:100%;
+      min-width:0;
+    }
+    body[data-mobile-mode="1"] .paintState{
+      display:none;
+    }
+    body[data-mobile-mode="1"] .toastWrap{
+      left:12px;
+      right:12px;
+      bottom:max(12px, env(safe-area-inset-bottom));
+      max-width:none;
+    }
+    body[data-mobile-mode="1"] .toast{
+      width:100%;
+    }
+    body[data-mobile-mode="1"] .busyOverlay{
+      top:12px;
+      left:12px;
+      right:12px;
+      justify-content:center;
+    }
+    body[data-mobile-mode="1"] .busyCard{
+      width:100%;
+      max-width:none;
+      border-radius:10px;
+    }
+  </style>
+</head>
+
+<body>
+<div id="busyOverlay" class="busyOverlay" data-open="0" aria-live="polite" aria-busy="false">
+  <div class="busyCard">
+    <span class="busySpinner"></span>
+    <span id="busyText" data-i18n="busy.saving_changes">Saving changes...</span>
+  </div>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span><span id="brandText" data-i18n="app.brand">DnD Scheduler</span></div>
+    <div class="topActions">
+      <button id="mobileModeBtn" class="btn mobileModeBtn" type="button"></button>
+      <button id="langEnBtn" class="btn langBtn" type="button">EN</button>
+      <button id="langPlBtn" class="btn langBtn" type="button">PL</button>
+      <button id="refreshBtn" class="btn" type="button" onclick="location.reload()" data-i18n="common.refresh">Refresh</button>
+    </div>
+  </div>
+
+  <div class="pageHeader">
+    <div class="title" data-i18n="app.title">DnD Scheduler</div>
+    <div class="subtitle" data-i18n="app.subtitle">Campaign availability & scheduling</div>
+  </div>
+  <div id="mobileNav" class="mobileNav" role="tablist" aria-label="Mobile navigation">
+    <button class="mobileTab" type="button" role="tab" aria-controls="availabilityPanel" data-mobile-page-btn="availability" data-i18n="mobile.tab_availability">Schedule</button>
+    <button class="mobileTab" type="button" role="tab" aria-controls="tutorialPanel" data-mobile-page-btn="tutorial" data-i18n="mobile.tab_tutorial">Guide</button>
+    <button class="mobileTab" type="button" role="tab" aria-controls="campaignPanel" data-mobile-page-btn="campaign" data-i18n="mobile.tab_campaign">Campaigns</button>
+    <button class="mobileTab" type="button" role="tab" aria-controls="trackerPanel" data-mobile-page-btn="tracker" data-i18n="mobile.tab_tracker">Tracker</button>
+    <button class="mobileTab" type="button" role="tab" aria-controls="lockedPanel" data-mobile-page-btn="locked" data-i18n="mobile.tab_locked">Locked</button>
+    <button class="mobileTab" type="button" role="tab" aria-controls="whoPanel" data-mobile-page-btn="who" data-i18n="mobile.tab_who">Who Plays</button>
+  </div>
+
+  <div class="panel" id="availabilityPanel" data-open="1" data-mobile-active="1" role="tabpanel">
+    <div class="campHeader" id="availabilityToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="availability.title">Availability grid</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+    <div id="availabilityBody" style="margin-top:10px; display:block;">
+      <div id="tourBanner" class="tour" style="display:none;">
+        <span data-i18n-html="tour.banner_html">Quick start: choose a player, load availability, paint slots, then save. Greyed out slots are locked and cannot be edited. Right click removes on desktop; on touch, use Remove mode.</span>
+        <button id="tourDismiss" class="btn" type="button" data-i18n="tour.dismiss">Dismiss</button>
+      </div>
+
+      <div class="controls availabilityControls">
+        <div class="controlCard controlCardPlayer">
+          <div class="fieldStack">
+            <label for="player" data-i18n="availability.player">Player</label>
+            <select id="player"></select>
+          </div>
+          <div class="actionRow">
+            <button id="loadBtn" class="btn" data-i18n="availability.load">Load</button>
+            <button id="saveBtn" class="btn btnPrimary" disabled data-i18n="availability.save">Save</button>
+            <button id="undoBtn" class="btn" disabled data-i18n="availability.undo">Undo</button>
+            <button id="redoBtn" class="btn" disabled data-i18n="availability.redo">Redo</button>
+          </div>
+        </div>
+        <div class="controlCard controlCardPreset">
+          <div class="fieldStack">
+            <label for="preset" data-i18n="availability.usual_times">Usual times</label>
+            <select id="preset">
+              <option value="" data-i18n="select.load_player">-- load a player --</option>
+            </select>
+          </div>
+          <div class="actionRow">
+            <button id="presetAdd" class="btn" data-i18n="availability.preset_add">Apply (Add)</button>
+            <button id="presetReplace" class="btn" data-i18n="availability.preset_replace">Apply (Replace)</button>
+          </div>
+        </div>
+        <div class="controlCard controlCardTools">
+          <div class="actionRow">
+            <button id="clearAllBtn" class="btn" data-i18n="availability.clear_all">Clear all</button>
+            <button id="copyPrevDayBtn" class="btn" data-i18n="availability.copy_prev_day">Copy prev day</button>
+            <button id="invertDayBtn" class="btn" data-i18n="availability.invert_day">Invert day</button>
+          </div>
+          <div id="paintHud" class="paintHud" data-open="0" aria-live="polite">
+            <span id="paintModeLabel" class="paintState" data-i18n="paint.adding">Adding</span>
+            <button id="paintAddBtn" class="btn" type="button" data-mode="add" data-i18n="paint.add">Add</button>
+            <button id="paintRemoveBtn" class="btn" type="button" data-mode="remove" data-i18n="paint.remove">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="controlsMeta">
+        <span id="dirtyFlag" class="savedFlag" data-i18n="availability.all_saved">All changes saved</span>
+        <span style="font-size:12px;color:var(--muted)" data-i18n="availability.paint_hint">Click-drag to paint availability</span>
+      </div>
+      <div id="mobileSheetModeBar" class="mobileSheetModeBar" hidden aria-live="polite">
+        <div class="mobileSheetModeToggle">
+          <button id="mobileViewModeBtn" class="btn mobileSheetModeBtn" type="button"></button>
+          <button id="mobileEditModeBtn" class="btn mobileSheetModeBtn" type="button"></button>
+        </div>
+        <span id="mobileSheetModeHint" class="mobileSheetModeHint"></span>
+      </div>
+
+      <div class="gridWrap">
+        <div id="grid" class="grid"></div>
+      </div>
+
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="tutorialPanel" data-open="1" data-mobile-active="0" role="tabpanel">
+    <div class="campHeader" id="tutorialToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="tutorial.title">How to fill the schedule</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+    <div id="tutorialBody" style="margin-top:10px; display:block;">
+      <div class="tutorialGrid">
+        <div class="tutorialCard">
+          <span class="tutorialStep">1</span>
+          <div class="tutorialTitle" data-i18n="tutorial.step1_title">Load your schedule</div>
+          <div class="tutorialText" data-i18n-html="tutorial.step1_text">Choose your player name and click <strong>Load</strong>. This brings back your saved availability before you start editing.</div>
+        </div>
+        <div class="tutorialCard">
+          <span class="tutorialStep">2</span>
+          <div class="tutorialTitle" data-i18n="tutorial.step2_title">Paint available time</div>
+          <div class="tutorialText" data-i18n-html="tutorial.step2_text">Click or drag on the grid to mark when you can play. Green means selected, red means unselected, and greyed out slots are locked for another campaign or reserved time, so they cannot be changed.</div>
+        </div>
+        <div class="tutorialCard">
+          <span class="tutorialStep">3</span>
+          <div class="tutorialTitle" data-i18n="tutorial.step3_title">Remove mistakes quickly</div>
+          <div class="tutorialText" data-i18n-html="tutorial.step3_text">On desktop, right click and drag to remove slots. On touch devices, switch between the <strong>Add</strong> and <strong>Remove</strong> buttons.</div>
+        </div>
+        <div class="tutorialCard">
+          <span class="tutorialStep">4</span>
+          <div class="tutorialTitle" data-i18n="tutorial.step4_title">Save before leaving</div>
+          <div class="tutorialText" data-i18n-html="tutorial.step4_text">If the banner says <strong>Unsaved changes</strong>, click <strong>Save</strong>. Use presets, fill day, copy previous day, undo, and redo to speed things up.</div>
+        </div>
+      </div>
+      <div class="tutorialTips">
+        <span class="tutorialTip" data-i18n-html="tutorial.tip1">Use <strong>Apply (Add)</strong> to keep your current picks and add preset hours.</span>
+        <span class="tutorialTip" data-i18n-html="tutorial.tip2">Use <strong>Apply (Replace)</strong> to rebuild your schedule from preset rules.</span>
+        <span class="tutorialTip" data-i18n-html="tutorial.tip3">After saving, open <strong>Campaign availability</strong> to see what sessions became playable.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="campaignPanel" data-open="0" data-mobile-active="0" role="tabpanel">
+    <div class="campHeader" id="campaignToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="campaign.title">Campaign availability</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+    <div id="campaignBody" style="margin-top:10px; display:none;">
+      <div class="campaignFilters">
+        <span style="font-size:12px;color:var(--muted)" data-i18n="campaign.filter">Filter</span>
+        <select id="campaignFilter" style="min-width:180px">
+          <option value="ALL" data-i18n="campaign.filter_all">All statuses</option>
+          <option value="PLAYABLE" data-i18n="campaign.filter_playable">Only playable</option>
+          <option value="LOCKED" data-i18n="campaign.filter_locked">Only locked</option>
+          <option value="ALMOST" data-i18n="campaign.filter_almost">Only almost</option>
+          <option value="MISSING" data-i18n="campaign.filter_missing">Only missing</option>
+        </select>
+        <label class="chip"><input id="mineOnly" type="checkbox" style="margin-right:6px;"><span data-i18n="campaign.mine_only">My campaigns</span></label>
+      </div>
+      <div id="nextSessions" class="pills" data-i18n="common.loading">Loading...</div>
+    </div>
+  </div>
+
+  <div class="panel" id="trackerPanel" data-open="0" data-mobile-active="0" role="tabpanel">
+    <div class="campHeader" id="trackerToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="tracker.title">Player update tracker</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+      <div id="trackerBody" style="margin-top:10px; display:none;">
+        <div id="tracker" style="display:flex; flex-wrap:wrap; gap:10px;" data-i18n="common.loading">Loading...</div>
+      </div>
+  </div>
+
+  <div class="panel" id="lockedPanel" data-open="0" data-mobile-active="0" role="tabpanel">
+    <div class="campHeader" id="lockedToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="locked.title">Next locked campaigns</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+    <div id="lockedBody" style="margin-top:10px; display:none;">
+      <div id="lockedCampaigns" class="pills" data-i18n="common.loading">Loading...</div>
+    </div>
+  </div>
+
+  <div class="panel" id="whoPanel" data-open="0" data-mobile-active="0" role="tabpanel">
+    <div class="campHeader" id="whoToggle">
+      <div class="campLeft">
+        <span class="caret"></span>
+        <strong data-i18n="who.title">Who can play when</strong>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" data-i18n="common.toggle_hint">click to toggle</span>
+    </div>
+    <div id="whoBody" style="margin-top:10px; display:none;">
+      <div class="controls" style="margin-bottom:10px;">
+        <label data-i18n="who.campaign">Campaign</label>
+        <select id="whoCampaign"></select>
+        <button id="whoRefreshBtn" class="btn" data-i18n="common.refresh">Refresh</button>
+      </div>
+      <div id="whoRule" style="margin-bottom:10px; font-size:12px; color:var(--muted);"></div>
+      <div class="whoLegend">
+        <span><span class="whoSwatch" style="background:rgba(255,120,120,.22)"></span><span data-i18n="who.legend_none">none</span></span>
+        <span><span class="whoSwatch" style="background:rgba(130,170,255,.22)"></span><span data-i18n="who.legend_some">some</span></span>
+        <span><span class="whoSwatch" style="background:rgba(120,255,160,.22)"></span><span data-i18n="who.legend_meets">meets campaign rule</span></span>
+        <span><span class="whoSwatch" style="background:rgba(255,220,90,.22)"></span><span data-i18n="who.legend_locked">locked</span></span>
+      </div>
+      <div class="gridWrap">
+        <div id="whoGrid" class="grid"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div id="toastWrap" class="toastWrap" aria-live="polite"></div>
+
+<script>
+  const BOOTSTRAP_DATA = <?!= bootstrapData ?>;
+  const DEFAULT_LANG = BOOTSTRAP_DATA.initialLang || 'en';
+  const DISPLAY_TIME_ZONE = BOOTSTRAP_DATA.timeZone || 'UTC';
+  const TRANSLATION_PACKS = {};
+  if (BOOTSTRAP_DATA.translations) {
+    TRANSLATION_PACKS[DEFAULT_LANG] = BOOTSTRAP_DATA.translations;
+  }
+  const LANG_STORAGE_KEY = 'dnd.lang';
+  const MOBILE_MODE_STORAGE_KEY = 'dnd.mobileMode';
+  const MOBILE_SHEET_MODE_STORAGE_KEY = 'dnd.mobileSheetMode';
+  const BROWSER_CACHE_SCHEMA_VERSION = '1';
+  const BROWSER_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+  const SESSION_BROWSER_CACHE_KEY = `dnd.cache.session.${BROWSER_CACHE_SCHEMA_VERSION}`;
+  const DASHBOARD_BROWSER_CACHE_KEY = `dnd.cache.dashboard.${BROWSER_CACHE_SCHEMA_VERSION}`;
+  const PLAYER_BROWSER_CACHE_KEY_PREFIX = `dnd.cache.player.${BROWSER_CACHE_SCHEMA_VERSION}.`;
+  const PERF_LOGGING = true;
+  const MOBILE_TOUCH_PAINT_HOLD_MS = 180;
+  const MOBILE_TOUCH_PAINT_MOVE_PX = 10;
+  const WEEKDAY_INDEX_BY_SHORT_NAME = Object.freeze({
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6
+  });
+  const intlFormatterCache = new Map();
+  let currentLang = normalizeLang(localStorage.getItem(LANG_STORAGE_KEY) || DEFAULT_LANG);
+  let mobileModePreference = (() => {
+    const stored = localStorage.getItem(MOBILE_MODE_STORAGE_KEY);
+    return (stored === 'on' || stored === 'off') ? stored : 'auto';
+  })();
+  let mobileSheetMode = normalizeMobileSheetMode(
+    localStorage.getItem(MOBILE_SHEET_MODE_STORAGE_KEY) || 'view'
+  );
+  let mobileMode = false;
+
+  const elLoad = document.getElementById('loadBtn');
+  const elPlayer = document.getElementById('player');
+  const elGrid = document.getElementById('grid');
+  const elStatus = document.getElementById('status');
+  const elSave = document.getElementById('saveBtn');
+  const elPreset = document.getElementById('preset');
+  const elPresetAdd = document.getElementById('presetAdd');
+  const elPresetReplace = document.getElementById('presetReplace');
+  const elDirty = document.getElementById('dirtyFlag');
+  const elMobileSheetModeBar = document.getElementById('mobileSheetModeBar');
+  const elMobileViewMode = document.getElementById('mobileViewModeBtn');
+  const elMobileEditMode = document.getElementById('mobileEditModeBtn');
+  const elMobileSheetModeHint = document.getElementById('mobileSheetModeHint');
+  const elNext = document.getElementById('nextSessions');
+  const elTracker = document.getElementById('tracker');
+  const elLocked = document.getElementById('lockedCampaigns');
+  const elCampaignFilter = document.getElementById('campaignFilter');
+  const elMineOnly = document.getElementById('mineOnly');
+  const elAvailabilityPanel = document.getElementById('availabilityPanel');
+  const elAvailabilityToggle = document.getElementById('availabilityToggle');
+  const elAvailabilityBody = document.getElementById('availabilityBody');
+  const elTutorialPanel = document.getElementById('tutorialPanel');
+  const elTutorialToggle = document.getElementById('tutorialToggle');
+  const elTutorialBody = document.getElementById('tutorialBody');
+  const elCampaignPanel = document.getElementById('campaignPanel');
+  const elCampaignToggle = document.getElementById('campaignToggle');
+  const elCampaignBody = document.getElementById('campaignBody');
+  const elTrackerPanel = document.getElementById('trackerPanel');
+  const elTrackerToggle = document.getElementById('trackerToggle');
+  const elTrackerBody = document.getElementById('trackerBody');
+  const elLockedPanel = document.getElementById('lockedPanel');
+  const elLockedToggle = document.getElementById('lockedToggle');
+  const elLockedBody = document.getElementById('lockedBody');
+  const elWhoPanel = document.getElementById('whoPanel');
+  const elWhoToggle = document.getElementById('whoToggle');
+  const elWhoBody = document.getElementById('whoBody');
+  const elWhoGrid = document.getElementById('whoGrid');
+  const elWhoCampaign = document.getElementById('whoCampaign');
+  const elWhoRefresh = document.getElementById('whoRefreshBtn');
+  const elWhoRule = document.getElementById('whoRule');
+  const elBusyOverlay = document.getElementById('busyOverlay');
+  const elBusyText = document.getElementById('busyText');
+  const elUndo = document.getElementById('undoBtn');
+  const elRedo = document.getElementById('redoBtn');
+  const elClearAll = document.getElementById('clearAllBtn');
+  const elCopyPrevDay = document.getElementById('copyPrevDayBtn');
+  const elInvertDay = document.getElementById('invertDayBtn');
+  const elPaintHud = document.getElementById('paintHud');
+  const elPaintMode = document.getElementById('paintModeLabel');
+  const elPaintAdd = document.getElementById('paintAddBtn');
+  const elPaintRemove = document.getElementById('paintRemoveBtn');
+  const elToastWrap = document.getElementById('toastWrap');
+  const elTourBanner = document.getElementById('tourBanner');
+  const elTourDismiss = document.getElementById('tourDismiss');
+  const elLangEn = document.getElementById('langEnBtn');
+  const elLangPl = document.getElementById('langPlBtn');
+  const elMobileMode = document.getElementById('mobileModeBtn');
+  const mobilePageButtons = Array.from(document.querySelectorAll('[data-mobile-page-btn]'));
+
+  let slots = [];
+  let gridData = null;
+  let slotDataKey = '';
+  let selected = new Set();
+  let baselineSelected = new Set();
+  let isDirty = false;
+  let isDown = false;
+  let paintTo = true;
+  let currentPlayerId = '';
+  let selectedPlayerId = '';
+  let lockedIds = new Set();
+  let lockedCampaignById = new Map();
+  let playerUsualById = new Map();
+  let currentUsualRules = [];
+  let whoCampaignValue = '';
+  let campaignGroupsCache = null;
+  let trackerRowsCache = null;
+  let playersCache = [];
+  let lastWhoGridData = null;
+  let gridModelCache = null;
+  let gridModelCacheKey = '';
+  let autosaveTimer = null;
+  let autosaveInFlight = false;
+  let undoStack = [];
+  let redoStack = [];
+  let hoverCol = -1;
+  let hoverDay = '';
+  let activeDay = '';
+  let lastCopiedDay = '';
+  let campaignOpenState = {};
+  let paintModeTouch = 'add';
+  let currentMobilePage = 'availability';
+  let busyCount = 0;
+  let campaignDataLoaded = false;
+  let trackerDataLoaded = false;
+  let whoDataLoaded = false;
+  let campaignRequestInFlight = false;
+  let trackerRequestInFlight = false;
+  let panelRefreshTimer = null;
+  let panelRefreshRequestSeq = 0;
+  let whoRequestSeq = 0;
+  let activeWhoRequestId = 0;
+  let inflightWhoRequestId = 0;
+  let inflightWhoRequestRef = '';
+  let playerStateRequestSeq = 0;
+  let activePlayerStateRequestId = 0;
+  let backgroundPlayerRefreshSeq = 0;
+  let playerLoadInFlight = false;
+  let pendingTouchPaint = null;
+  const MIN_VISIBLE_SLOT_MINUTES = 16 * 60;
+  const mobilePanels = {
+    availability: { panel: elAvailabilityPanel, body: elAvailabilityBody },
+    tutorial: { panel: elTutorialPanel, body: elTutorialBody },
+    campaign: { panel: elCampaignPanel, body: elCampaignBody },
+    tracker: { panel: elTrackerPanel, body: elTrackerBody },
+    locked: { panel: elLockedPanel, body: elLockedBody },
+    who: { panel: elWhoPanel, body: elWhoBody }
+  };
+
+  elLoad.onclick = load;
+  document.getElementById('saveBtn').onclick = save;
+  elPlayer.onchange = handlePlayerSelectionChange;
+  document.getElementById('presetAdd').onclick = () => applyPreset('add');
+  document.getElementById('presetReplace').onclick = () => applyPreset('replace');
+  window.addEventListener('mouseup', handleGlobalPointerEnd);
+  window.addEventListener('touchend', handleGlobalTouchEnd, { passive:true });
+  window.addEventListener('touchcancel', handleGlobalTouchEnd, { passive:true });
+  elAvailabilityToggle.onclick = () => toggleAvailabilityPanel();
+  elTutorialToggle.onclick = () => toggleTutorialPanel();
+  elCampaignToggle.onclick = () => toggleCampaignPanel();
+  elTrackerToggle.onclick = () => toggleTrackerPanel();
+  elLockedToggle.onclick = () => toggleLockedPanel();
+  elWhoToggle.onclick = () => toggleWhoPanel();
+  elCampaignFilter.onchange = () => { if(campaignGroupsCache) renderCampaignOptions(campaignGroupsCache); };
+  elMineOnly.onchange = () => { if(campaignGroupsCache) renderCampaignOptions(campaignGroupsCache); };
+  elWhoRefresh.onclick = () => refreshWhoCanPlay(elWhoCampaign.value || whoCampaignValue, { showBusy: true, showLoading: true });
+  elWhoCampaign.onchange = () => {
+    whoCampaignValue = elWhoCampaign.value || '';
+    persistSessionCache();
+    refreshWhoCanPlay(whoCampaignValue, { showBusy: true, showLoading: true });
+  };
+  elUndo.onclick = undoChange;
+  elRedo.onclick = redoChange;
+  elClearAll.onclick = clearAll;
+  elCopyPrevDay.onclick = copyPreviousDay;
+  elInvertDay.onclick = invertActiveDay;
+  elPaintAdd.onclick = () => setPaintModeTouch('add');
+  elPaintRemove.onclick = () => setPaintModeTouch('remove');
+  elTourDismiss.onclick = dismissTour;
+  elLangEn.onclick = () => setLanguage('en');
+  elLangPl.onclick = () => setLanguage('pl');
+  elMobileMode.onclick = cycleMobileModePreference;
+  elMobileViewMode.onclick = () => setMobileSheetMode('view');
+  elMobileEditMode.onclick = () => setMobileSheetMode('edit');
+  mobilePageButtons.forEach(btn => {
+    btn.onclick = () => setMobilePage(btn.dataset.mobilePageBtn || 'availability');
+  });
+  elNext.addEventListener('click', handleCampaignPanelClick);
+  elLocked.addEventListener('click', handleLockedCampaignClick);
+
+  initGridInteractions();
+  document.addEventListener('keydown', handleGlobalKeys);
+  window.addEventListener('resize', handleWindowResize);
+
+  bootApp();
+
+  function escapeHtml(s){
+    return String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+  function isPanelOpen(panel){
+    return panel.getAttribute('data-open') === '1';
+  }
+  function normalizeLang(lang){
+    return String(lang || '').toLowerCase() === 'pl' ? 'pl' : 'en';
+  }
+  function normalizeMobileSheetMode(mode){
+    return String(mode || '').toLowerCase() === 'edit' ? 'edit' : 'view';
+  }
+  function perfNow(){
+    return (window.performance && typeof window.performance.now === 'function')
+      ? window.performance.now()
+      : Date.now();
+  }
+  function startPerf(label){
+    if(!PERF_LOGGING) return null;
+    return {
+      label: String(label || 'perf'),
+      startedAt: perfNow()
+    };
+  }
+  function endPerf(token, meta){
+    if(!PERF_LOGGING || !token) return;
+    const duration = Math.round((perfNow() - token.startedAt) * 10) / 10;
+    const suffix = meta ? ` ${meta}` : '';
+    console.log(`[perf] ${token.label}: ${duration}ms${suffix}`);
+  }
+  function cacheLanguagePack(lang, pack){
+    TRANSLATION_PACKS[normalizeLang(lang)] = (pack && typeof pack === 'object') ? pack : {};
+  }
+  function browserPlayerCacheKey(playerId){
+    return `${PLAYER_BROWSER_CACHE_KEY_PREFIX}${String(playerId || '').trim()}`;
+  }
+  function readBrowserCache(key){
+    if(!key) return null;
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return null;
+      const payload = JSON.parse(raw);
+      if(!payload || typeof payload !== 'object' || !('data' in payload)) return null;
+      const savedAt = Number(payload.savedAt || 0);
+      if(!Number.isFinite(savedAt) || savedAt <= 0) return null;
+      if((Date.now() - savedAt) > BROWSER_CACHE_MAX_AGE_MS) return null;
+      return payload.data;
+    } catch(_){
+      return null;
+    }
+  }
+  function writeBrowserCache(key, data){
+    if(!key || data === undefined) return;
+    try{
+      localStorage.setItem(key, JSON.stringify({
+        savedAt: Date.now(),
+        data
+      }));
+    } catch(_){}
+  }
+  function persistSessionCache(){
+    writeBrowserCache(SESSION_BROWSER_CACHE_KEY, {
+      selectedPlayerId: String(selectedPlayerId || getSelectedPlayerControlValue() || '').trim(),
+      currentPlayerId: String(currentPlayerId || '').trim(),
+      whoCampaignValue: String(whoCampaignValue || '').trim()
+    });
+  }
+  function restoreCachedSessionState(){
+    const cached = readBrowserCache(SESSION_BROWSER_CACHE_KEY);
+    if(!cached || typeof cached !== 'object'){
+      return { currentPlayerId:'' };
+    }
+
+    const selectedPid = String(cached.selectedPlayerId || '').trim();
+    if(selectedPid && playersCache.some(p => String(p.player_id || '').trim() === selectedPid)){
+      selectedPlayerId = selectedPid;
+      elPlayer.value = selectedPid;
+      setUsualOptionsForPlayer(selectedPid);
+    } else {
+      selectedPlayerId = getSelectedPlayerControlValue();
+    }
+
+    whoCampaignValue = String(cached.whoCampaignValue || '').trim();
+    return {
+      currentPlayerId: String(cached.currentPlayerId || '').trim()
+    };
+  }
+  function mergeCachedPlayerState(playerId, patch){
+    const pid = String(playerId || '').trim();
+    if(!pid) return null;
+    const existing = readBrowserCache(browserPlayerCacheKey(pid)) || {};
+    const merged = Object.assign({}, existing, patch || {}, { playerId: pid });
+    if((!merged.gridData || !Array.isArray(merged.gridData.rows) || !Array.isArray(merged.gridData.timeMins)) && existing.gridData){
+      merged.gridData = existing.gridData;
+    }
+    return merged;
+  }
+  function persistCurrentPlayerCache(){
+    const pid = String(currentPlayerId || '').trim();
+    if(!pid) return;
+    const payload = getBaseGridPayload();
+    writeBrowserCache(browserPlayerCacheKey(pid), {
+      playerId: pid,
+      slotDataKey: String(slotDataKey || ''),
+      gridData: payload && Array.isArray(payload.rows) ? payload : null,
+      selectedSlotIds: Array.from(selected).sort((a,b) => a - b),
+      lockedSlotIds: Array.from(lockedIds).sort((a,b) => a - b),
+      lockedSlotCampaigns: Array.from(lockedCampaignById.entries()).map(([slot_id, campaign]) => ({
+        slot_id: Number(slot_id),
+        campaign: String(campaign || '')
+      }))
+    });
+    persistSessionCache();
+  }
+  function persistDashboardCache(){
+    const cached = readBrowserCache(DASHBOARD_BROWSER_CACHE_KEY) || {};
+    const next = Object.assign({}, cached);
+    if(campaignGroupsCache !== null && campaignGroupsCache !== undefined){
+      next.campaignGroups = campaignGroupsCache;
+    }
+    if(trackerRowsCache !== null && trackerRowsCache !== undefined){
+      next.trackerRows = trackerRowsCache;
+    }
+    if(lastWhoGridData !== null && lastWhoGridData !== undefined){
+      next.whoGrid = lastWhoGridData;
+    }
+    writeBrowserCache(DASHBOARD_BROWSER_CACHE_KEY, next);
+    persistSessionCache();
+  }
+  function restoreCachedDashboardState(){
+    const cached = readBrowserCache(DASHBOARD_BROWSER_CACHE_KEY);
+    if(!cached || typeof cached !== 'object') return false;
+    if(
+      cached.campaignGroups === undefined &&
+      cached.trackerRows === undefined &&
+      cached.whoGrid === undefined
+    ){
+      return false;
+    }
+    applyDashboardData(cached);
+    return true;
+  }
+  function applyLoadedPlayerState(pid, data, options){
+    const playerId = String(pid || '').trim();
+    if(!playerId || !data || typeof data !== 'object') return false;
+    const opts = options && typeof options === 'object' ? options : {};
+
+    currentPlayerId = playerId;
+    selectedPlayerId = playerId;
+    if(elPlayer.value !== playerId) elPlayer.value = playerId;
+    if(data.slotDataKey) slotDataKey = String(data.slotDataKey);
+    applySlotStatePayload(data);
+    selected = new Set(data.selectedSlotIds || []);
+    baselineSelected = new Set(selected);
+    lockedIds = new Set(data.lockedSlotIds || []);
+    lockedCampaignById = new Map((data.lockedSlotCampaigns || []).map(x => [
+      Number(x.slot_id),
+      String(x.campaign || '')
+    ]));
+    undoStack = [];
+    redoStack = [];
+    refreshHistoryButtons();
+    setUsualOptionsForPlayer(playerId);
+    if(mobileMode && opts.resetMobileMode){
+      setMobileSheetMode('view', { silent:true, skipRender:true });
+    }
+    renderGrid();
+    refreshDirty();
+    syncAvailabilityActionState();
+    persistCurrentPlayerCache();
+    if(campaignDataLoaded) renderCampaignOptions(campaignGroupsCache);
+    if(trackerDataLoaded) renderTracker(trackerRowsCache);
+    if(whoDataLoaded && lastWhoGridData) renderWhoCanPlay(lastWhoGridData);
+    return true;
+  }
+  function restoreCachedPlayerState(playerId){
+    const pid = String(playerId || '').trim();
+    if(!pid) return false;
+    if(!playersCache.some(p => String(p.player_id || '').trim() === pid)) return false;
+    const cached = readBrowserCache(browserPlayerCacheKey(pid));
+    if(!cached || typeof cached !== 'object') return false;
+    return applyLoadedPlayerState(pid, cached, { resetMobileMode:true });
+  }
+  function refreshCachedPlayerStateInBackground(playerId){
+    const pid = String(playerId || '').trim();
+    if(!pid) return;
+    const requestId = ++backgroundPlayerRefreshSeq;
+    const requestedSlotDataKey = String(slotDataKey || '');
+
+    google.script.run
+      .withSuccessHandler(d => {
+        if(requestId !== backgroundPlayerRefreshSeq) return;
+        const merged = mergeCachedPlayerState(pid, d);
+        if(merged) writeBrowserCache(browserPlayerCacheKey(pid), merged);
+
+        const activeSelected = String(selectedPlayerId || getSelectedPlayerControlValue() || '').trim();
+        if((activeSelected && activeSelected !== pid) || (currentPlayerId && currentPlayerId !== pid)) return;
+        if(isDirty || autosaveInFlight || playerLoadInFlight) return;
+        if(merged) applyLoadedPlayerState(pid, merged);
+      })
+      .withFailureHandler(() => {})
+      .getInitData(pid, { slotDataKey: requestedSlotDataKey });
+  }
+  function hasLanguagePack(lang){
+    return !!TRANSLATION_PACKS[normalizeLang(lang)];
+  }
+  function ensureLanguageLoaded(lang, handlers){
+    const normalized = normalizeLang(lang);
+    if(hasLanguagePack(normalized)){
+      if(handlers && typeof handlers.onSuccess === 'function') handlers.onSuccess(normalized);
+      return;
+    }
+    const perf = startPerf(`client.i18n.${normalized}`);
+    google.script.run
+      .withSuccessHandler(pack => {
+        cacheLanguagePack(normalized, pack);
+        endPerf(perf);
+        if(handlers && typeof handlers.onSuccess === 'function') handlers.onSuccess(normalized);
+      })
+      .withFailureHandler(err => {
+        endPerf(perf, 'failed');
+        if(handlers && typeof handlers.onFailure === 'function') handlers.onFailure(err, normalized);
+      })
+      .getClientTranslations(normalized);
+  }
+  function isMobilePage(page){
+    return Object.prototype.hasOwnProperty.call(mobilePanels, String(page || ''));
+  }
+  function isMobilePageVisible(page){
+    return !mobileMode || currentMobilePage === page;
+  }
+  function isAvailabilityOnlyMode(){
+    return mobileMode;
+  }
+  function buildDashboardLoadOptions(){
+    const availabilityOnly = isAvailabilityOnlyMode();
+    return {
+      includeCampaigns: !availabilityOnly && (isPanelOpen(elCampaignPanel) || isPanelOpen(elLockedPanel)),
+      includeTracker: !availabilityOnly && isPanelOpen(elTrackerPanel),
+      includeWho: !availabilityOnly && isPanelOpen(elWhoPanel),
+      whoCampaignRef: availabilityOnly ? '' : (whoCampaignValue || '')
+    };
+  }
+  function buildDeferredPanelRefreshOptions(){
+    const availabilityOnly = isAvailabilityOnlyMode();
+    return {
+      includeCampaigns: !availabilityOnly && (campaignDataLoaded || isPanelOpen(elCampaignPanel) || isPanelOpen(elLockedPanel)),
+      includeTracker: !availabilityOnly && (trackerDataLoaded || isPanelOpen(elTrackerPanel)),
+      includeWho: !availabilityOnly && (whoDataLoaded || isPanelOpen(elWhoPanel)),
+      whoCampaignRef: availabilityOnly ? '' : (whoCampaignValue || '')
+    };
+  }
+  function bootApp(){
+    const bootPerf = startPerf('client.boot');
+    const requestedLang = normalizeLang(localStorage.getItem(LANG_STORAGE_KEY) || DEFAULT_LANG);
+    currentLang = requestedLang;
+    ensureLanguageLoaded(requestedLang, {
+      onSuccess: () => finishBoot(bootPerf),
+      onFailure: () => {
+        currentLang = DEFAULT_LANG;
+        finishBoot(bootPerf, 'lang-fallback');
+      }
+    });
+  }
+  function finishBoot(bootPerf, meta){
+    applyLanguage(false);
+    hydrateUiState();
+    syncMobileMode();
+    maybeShowTour();
+    refreshHistoryButtons();
+    applyDashboardData({ init: BOOTSTRAP_DATA });
+
+    const sessionState = restoreCachedSessionState();
+    const hadCachedPlayer = restoreCachedPlayerState(sessionState.currentPlayerId);
+    const hadCachedDashboard = restoreCachedDashboardState();
+
+    const initialPanelOptions = hadCachedDashboard
+      ? buildDeferredPanelRefreshOptions()
+      : buildDashboardLoadOptions();
+    const needsInitialPanelLoad = initialPanelOptions.includeCampaigns || initialPanelOptions.includeTracker || initialPanelOptions.includeWho;
+    if(!needsInitialPanelLoad){
+      if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+      endPerf(bootPerf, meta || 'panels:0');
+      return;
+    }
+
+    const panelPerf = startPerf('client.initialPanels');
+    if(!hadCachedDashboard){
+      startBusy(t('busy.loading_scheduler'));
+    }
+    google.script.run
+      .withSuccessHandler(data => {
+        applyDashboardData(data);
+        if(!hadCachedDashboard) endBusy();
+        if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+        endPerf(panelPerf);
+        endPerf(bootPerf, meta || 'panels:1');
+      })
+      .withFailureHandler(err => {
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.initial_load_failed', { msg }));
+        toast(t('messages.initial_load_failed', { msg }), 'err');
+        if(!hadCachedDashboard) endBusy();
+        if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+        endPerf(panelPerf, 'failed');
+        endPerf(bootPerf, `${meta || 'panels:1'} failed`);
+      })
+      .getDashboardPanelsData(initialPanelOptions);
+  }
+  function t(key, vars){
+    const activePack = TRANSLATION_PACKS[normalizeLang(currentLang)] || {};
+    const fallbackPack = TRANSLATION_PACKS[normalizeLang(DEFAULT_LANG)] || {};
+    let text = activePack[key] || fallbackPack[key] || key;
+    const values = vars || {};
+    return text.replace(/\{(\w+)\}/g, (_, name) => {
+      const value = values[name];
+      return value === undefined || value === null ? '' : String(value);
+    });
+  }
+  function localeForLang(){
+    return currentLang === 'pl' ? 'pl-PL' : 'en-US';
+  }
+  function getIntlFormatter(locale, key, options){
+    const cacheKey = `${String(locale || '')}|${String(key || '')}`;
+    if(!intlFormatterCache.has(cacheKey)){
+      intlFormatterCache.set(
+        cacheKey,
+        new Intl.DateTimeFormat(
+          locale || localeForLang(),
+          Object.assign({ timeZone: DISPLAY_TIME_ZONE }, options || {})
+        )
+      );
+    }
+    return intlFormatterCache.get(cacheKey);
+  }
+  function getDisplayDateTimeParts(d){
+    if(!(d instanceof Date) || Number.isNaN(d.getTime())) return null;
+    const values = {};
+    getIntlFormatter(localeForLang(), 'displayDateTimeParts', {
+      year:'numeric',
+      month:'2-digit',
+      day:'2-digit',
+      hour:'2-digit',
+      minute:'2-digit',
+      hour12:false
+    }).formatToParts(d).forEach(part => {
+      if(part.type !== 'literal') values[part.type] = part.value;
+    });
+    const weekdayToken = getIntlFormatter('en-US', 'displayWeekday', {
+      weekday:'short'
+    }).format(d).slice(0, 3).toLowerCase();
+    return {
+      year: Number(values.year),
+      month: Number(values.month),
+      day: Number(values.day),
+      hour: Number(values.hour),
+      minute: Number(values.minute),
+      weekday: Object.prototype.hasOwnProperty.call(WEEKDAY_INDEX_BY_SHORT_NAME, weekdayToken)
+        ? WEEKDAY_INDEX_BY_SHORT_NAME[weekdayToken]
+        : 0
+    };
+  }
+  function updateLangButtons(){
+    elLangEn.setAttribute('data-active', currentLang === 'en' ? '1' : '0');
+    elLangPl.setAttribute('data-active', currentLang === 'pl' ? '1' : '0');
+  }
+  function detectMobileContext(){
+    const viewportWidth = Math.max(
+      window.innerWidth || 0,
+      document.documentElement ? document.documentElement.clientWidth : 0
+    );
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches || Number(navigator.maxTouchPoints || 0) > 0;
+    const hoverlessTouch = window.matchMedia('(hover: none)').matches;
+    return viewportWidth <= 900 || (coarsePointer && hoverlessTouch && viewportWidth <= 1180);
+  }
+  function resolveMobileMode(){
+    if(mobileModePreference === 'on') return true;
+    if(mobileModePreference === 'off') return false;
+    return detectMobileContext();
+  }
+  function mobileModeLabel(){
+    if(mobileModePreference === 'on') return t('mobile.mode_on');
+    if(mobileModePreference === 'off') return t('mobile.mode_off');
+    return t('mobile.mode_auto');
+  }
+  function mobileModeHelpText(){
+    if(mobileModePreference === 'on') return t('mobile.help_on');
+    if(mobileModePreference === 'off') return t('mobile.help_off');
+    return t('mobile.help_auto');
+  }
+  function isAvailabilityEditMode(){
+    return !mobileMode || mobileSheetMode === 'edit';
+  }
+  function shouldBlockAvailabilityEdits(){
+    return mobileMode && mobileSheetMode !== 'edit';
+  }
+  function mobileSheetModeHintText(){
+    return mobileSheetMode === 'edit'
+      ? t('mobile.sheet_hint_edit')
+      : t('mobile.sheet_hint_view');
+  }
+  function updateMobileModeButton(){
+    if(!elMobileMode) return;
+    elMobileMode.textContent = mobileModeLabel();
+    elMobileMode.title = mobileModeHelpText();
+    elMobileMode.setAttribute('aria-label', mobileModeHelpText());
+    elMobileMode.setAttribute('aria-pressed', mobileMode ? 'true' : 'false');
+    elMobileMode.setAttribute('data-active', mobileMode ? '1' : '0');
+  }
+  function getSelectedPlayerControlValue(){
+    return String((elPlayer && elPlayer.value) || '').trim();
+  }
+  function canLoadSelectedPlayer(){
+    return !!selectedPlayerId && !playerLoadInFlight;
+  }
+  function canEditLoadedAvailability(){
+    return !!currentPlayerId &&
+      !playerLoadInFlight &&
+      !!selectedPlayerId &&
+      selectedPlayerId === currentPlayerId;
+  }
+  function isAdminContext(){
+    return canEditLoadedAvailability() && currentPlayerId === 'P04';
+  }
+  function cancelActivePlayerStateRequest(){
+    activePlayerStateRequestId = ++playerStateRequestSeq;
+    playerLoadInFlight = false;
+    syncAvailabilityActionState();
+  }
+  function handlePlayerSelectionChange(){
+    const nextSelected = getSelectedPlayerControlValue();
+    const changed = nextSelected !== selectedPlayerId;
+    clearPendingTouchPaint();
+    endPaint();
+    if(autosaveTimer){
+      clearTimeout(autosaveTimer);
+      autosaveTimer = null;
+    }
+    selectedPlayerId = nextSelected;
+    if(changed && playerLoadInFlight){
+      cancelActivePlayerStateRequest();
+    }
+    if(selectedPlayerId){
+      setUsualOptionsForPlayer(selectedPlayerId);
+    } else {
+      setDefaultPresetOption();
+    }
+    if(currentPlayerId && selectedPlayerId && currentPlayerId !== selectedPlayerId){
+      setStatus(t('messages.player_switch_pending', { player: selectedPlayerId }));
+    } else if(changed && currentPlayerId && selectedPlayerId === currentPlayerId){
+      setStatus(t('messages.loaded_player', { player: currentPlayerId }));
+    }
+    syncAvailabilityActionState();
+    if(changed && isMobilePageVisible('availability')) renderGrid();
+    if(campaignDataLoaded) renderCampaignOptions(campaignGroupsCache);
+    if(trackerDataLoaded) renderTracker(trackerRowsCache);
+    if(whoDataLoaded && lastWhoGridData) renderWhoCanPlay(lastWhoGridData);
+    persistSessionCache();
+  }
+  function syncAvailabilityActionState(){
+    const editBlocked = shouldBlockAvailabilityEdits();
+    const canEdit = canEditLoadedAvailability();
+    const hasRules = !!currentUsualRules.length;
+    elLoad.disabled = !canLoadSelectedPlayer();
+    elSave.disabled = !(canEdit && isDirty) || autosaveInFlight;
+    elPresetAdd.disabled = editBlocked || !canEdit || !hasRules;
+    elPresetReplace.disabled = editBlocked || !canEdit || !hasRules;
+    elUndo.disabled = editBlocked || !canEdit || !undoStack.length;
+    elRedo.disabled = editBlocked || !canEdit || !redoStack.length;
+    elClearAll.disabled = editBlocked || !canEdit;
+    elCopyPrevDay.disabled = editBlocked || !canEdit;
+    elInvertDay.disabled = editBlocked || !canEdit;
+    elPaintAdd.disabled = editBlocked || !canEdit;
+    elPaintRemove.disabled = editBlocked || !canEdit;
+  }
+  function updateMobileSheetModeUi(){
+    document.body.setAttribute('data-mobile-sheet-mode', mobileMode ? mobileSheetMode : '');
+    if(!elMobileSheetModeBar) return;
+    const visible = mobileMode && currentMobilePage === 'availability';
+    elMobileSheetModeBar.hidden = !visible;
+    elMobileViewMode.textContent = t('mobile.sheet_view');
+    elMobileEditMode.textContent = t('mobile.sheet_edit');
+    elMobileViewMode.setAttribute('data-active', mobileSheetMode === 'view' ? '1' : '0');
+    elMobileViewMode.setAttribute('aria-pressed', mobileSheetMode === 'view' ? 'true' : 'false');
+    elMobileEditMode.setAttribute('data-active', mobileSheetMode === 'edit' ? '1' : '0');
+    elMobileEditMode.setAttribute('aria-pressed', mobileSheetMode === 'edit' ? 'true' : 'false');
+    elMobileSheetModeHint.textContent = mobileSheetModeHintText();
+    syncAvailabilityActionState();
+  }
+  function clearPendingTouchPaint(){
+    if(pendingTouchPaint && pendingTouchPaint.timer){
+      clearTimeout(pendingTouchPaint.timer);
+    }
+    pendingTouchPaint = null;
+  }
+  function setMobileSheetMode(mode, options){
+    const opts = options && typeof options === 'object' ? options : {};
+    const nextMode = normalizeMobileSheetMode(mode);
+    if(mobileSheetMode === nextMode){
+      updateMobileSheetModeUi();
+      return;
+    }
+    clearPendingTouchPaint();
+    endPaint();
+    mobileSheetMode = nextMode;
+    localStorage.setItem(MOBILE_SHEET_MODE_STORAGE_KEY, mobileSheetMode);
+    updateMobileSheetModeUi();
+    if(!opts.skipRender && isMobilePageVisible('availability')) renderGrid();
+    if(!opts.silent){
+      toast(
+        mobileSheetMode === 'edit'
+          ? t('mobile.sheet_toast_edit')
+          : t('mobile.sheet_toast_view'),
+        'ok'
+      );
+    }
+  }
+  function ensureAvailabilityEditMode(){
+    if(currentPlayerId && selectedPlayerId && currentPlayerId !== selectedPlayerId){
+      const msg = t('messages.player_switch_pending', { player: selectedPlayerId });
+      setStatus(msg);
+      toast(msg, 'err');
+      return false;
+    }
+    if(!currentPlayerId){
+      setStatus(t('messages.pick_player_first'));
+      return false;
+    }
+    if(!shouldBlockAvailabilityEdits()) return true;
+    const msg = t('mobile.edit_required');
+    setStatus(msg);
+    toast(msg, 'err');
+    return false;
+  }
+  function syncMobilePageState(){
+    const activePage = isMobilePage(currentMobilePage) ? currentMobilePage : 'availability';
+    currentMobilePage = activePage;
+    document.body.setAttribute('data-mobile-page', mobileMode ? activePage : '');
+    mobilePageButtons.forEach(btn => {
+      const active = btn.dataset.mobilePageBtn === activePage;
+      btn.setAttribute('data-active', active ? '1' : '0');
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      btn.tabIndex = 0;
+    });
+    Object.entries(mobilePanels).forEach(([page, entry]) => {
+      const active = !mobileMode || page === activePage;
+      entry.panel.setAttribute('data-mobile-active', active ? '1' : '0');
+      if(mobileMode){
+        entry.body.style.display = active ? (page === 'availability' ? 'flex' : 'block') : 'none';
+      } else {
+        entry.body.style.display = entry.panel.getAttribute('data-open') === '1' ? 'block' : 'none';
+      }
+    });
+    updateMobileSheetModeUi();
+    syncPaintHudVisibility();
+  }
+  function loadMobilePage(page){
+    if(page === 'availability'){
+      renderGrid();
+      return;
+    }
+    if(page === 'tutorial') return;
+    if(page === 'campaign' || page === 'locked'){
+      ensureCampaignData();
+      return;
+    }
+    if(page === 'tracker'){
+      ensureTrackerData();
+      return;
+    }
+    if(page === 'who'){
+      ensureWhoData({ showBusy: true, showLoading: true });
+    }
+  }
+  function setMobilePage(page){
+    currentMobilePage = isMobilePage(page) ? page : 'availability';
+    syncMobilePageState();
+    if(mobileMode) loadMobilePage(currentMobilePage);
+  }
+  function syncMobileMode(){
+    const nextMode = resolveMobileMode();
+    const changed = mobileMode !== nextMode;
+    mobileMode = nextMode;
+    document.body.setAttribute('data-mobile-mode', mobileMode ? '1' : '0');
+    document.body.setAttribute('data-mobile-pref', mobileModePreference);
+    if(mobileMode && changed){
+      setMobileSheetMode('view', { silent:true, skipRender:true });
+    }
+    updateMobileModeButton();
+    syncMobilePageState();
+    return changed;
+  }
+  function cycleMobileModePreference(){
+    mobileModePreference = mobileModePreference === 'auto'
+      ? 'on'
+      : (mobileModePreference === 'on' ? 'off' : 'auto');
+    if(mobileModePreference === 'auto'){
+      localStorage.removeItem(MOBILE_MODE_STORAGE_KEY);
+    } else {
+      localStorage.setItem(MOBILE_MODE_STORAGE_KEY, mobileModePreference);
+    }
+    const modeChanged = syncMobileMode();
+    if(modeChanged){
+      if(isMobilePageVisible('availability')) renderGrid();
+      if(lastWhoGridData && isMobilePageVisible('who')) renderWhoCanPlay(lastWhoGridData);
+    }
+    toast(
+      mobileModePreference === 'auto'
+        ? t('mobile.toast_auto')
+        : (mobileModePreference === 'on' ? t('mobile.toast_on') : t('mobile.toast_off')),
+      'ok'
+    );
+  }
+  function applyStaticTranslations(){
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      el.innerHTML = t(el.getAttribute('data-i18n-html'));
+    });
+    updateLangButtons();
+    updateMobileModeButton();
+    updateMobileSheetModeUi();
+  }
+  function setLanguage(next){
+    const lang = normalizeLang(next);
+    if(currentLang === lang && hasLanguagePack(lang)){
+      updateLangButtons();
+      return;
+    }
+    const previousLang = currentLang;
+    const applyNextLanguage = () => {
+      currentLang = lang;
+      localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+      activeDay = '';
+      hoverDay = '';
+      hoverCol = -1;
+      lastCopiedDay = '';
+      applyLanguage(true);
+    };
+    if(hasLanguagePack(lang)){
+      applyNextLanguage();
+      return;
+    }
+    ensureLanguageLoaded(lang, {
+      onSuccess: () => applyNextLanguage(),
+      onFailure: err => {
+        currentLang = previousLang;
+        updateLangButtons();
+        const msg = (err && err.message) ? err.message : String(err);
+        toast(t('common.failed_to_load', { msg }), 'err');
+      }
+    });
+  }
+  function applyLanguage(shouldRerender){
+    applyStaticTranslations();
+    renderPlayerOptions();
+    if(selectedPlayerId || currentPlayerId){
+      setUsualOptionsForPlayer(selectedPlayerId || currentPlayerId);
+    } else {
+      setDefaultPresetOption();
+    }
+    setDirty(isDirty);
+    setPaintModeTouch(paintModeTouch);
+    maybeShowTour();
+    if(!shouldRerender) return;
+    if(isMobilePageVisible('availability')) renderGrid();
+    if(campaignGroupsCache) renderCampaignOptions(campaignGroupsCache);
+    if(trackerRowsCache) renderTracker(trackerRowsCache);
+    if(lastWhoGridData && isMobilePageVisible('who')) renderWhoCanPlay(lastWhoGridData);
+  }
+  function renderPlayerOptions(){
+    const selectedValue = selectedPlayerId || currentPlayerId || elPlayer.value || '';
+    elPlayer.innerHTML = `<option value="">${escapeHtml(t('select.choose'))}</option>` +
+      playersCache.map(p =>
+        `<option value="${escapeAttr(p.player_id)}">${escapeHtml(p.name)} (${escapeHtml(p.player_id)})</option>`
+      ).join('');
+    if(selectedValue && playersCache.some(p => String(p.player_id || '') === selectedValue)){
+      elPlayer.value = selectedValue;
+    }
+  }
+  function setDefaultPresetOption(){
+    currentUsualRules = [];
+    elPreset.innerHTML = `<option value="">${escapeHtml(t('select.load_player'))}</option>`;
+    syncAvailabilityActionState();
+  }
+  function displayStatus(status){
+    const normalized = String(status || '').trim().toUpperCase();
+    if(normalized === 'LOCKED') return t('status.locked');
+    if(normalized === 'PLAYABLE') return t('status.playable');
+    if(normalized === 'ALMOST') return t('status.almost');
+    if(normalized === 'UPDATED') return t('status.updated');
+    if(normalized === 'NEEDS UPDATE') return t('status.needs_update');
+    return t('status.missing');
+  }
+  function formatAgeLabel(iso){
+    const ms = new Date(String(iso || '')).getTime();
+    if(!Number.isFinite(ms)) return t('common.never');
+    const ageMs = Math.max(0, Date.now() - ms);
+    const totalHours = Math.floor(ageMs / (60 * 60 * 1000));
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    if(days <= 0) return t('age.hours', { hours });
+    return t('age.days_hours', { days, hours });
+  }
+  function pad2(n){
+    return String(Number(n) || 0).padStart(2, '0');
+  }
+  function formatDisplayDate(d){
+    const parts = getDisplayDateTimeParts(d);
+    if(!parts) return '';
+    return `${pad2(parts.day)}/${pad2(parts.month)}/${parts.year}`;
+  }
+  function normalizeDisplayDateText(dateText){
+    const raw = String(dateText || '').trim();
+    if(!raw) return '';
+    const match = raw.match(/(\d{1,2})[./](\d{1,2})[./](\d{4})/);
+    if(!match) return raw;
+    return `${pad2(match[1])}/${pad2(match[2])}/${match[3]}`;
+  }
+  function dayLabelForDate(d){
+    return formatDisplayDate(d);
+  }
+  function formatCampaignDate(item){
+    const ts = Number(item && item.startMs);
+    if(Number.isFinite(ts)){
+      return formatDisplayDate(new Date(ts));
+    }
+    return normalizeDisplayDateText(item && item.date);
+  }
+  function formatCampaignTimeRange(item){
+    const start = Number(item && item.startMs);
+    const end = Number(item && item.endMs);
+    if(Number.isFinite(start) && Number.isFinite(end)){
+      return `${timeLabelForDate(new Date(start))}-${timeLabelForDate(new Date(end))}`;
+    }
+    return String((item && item.time) || '');
+  }
+  function formatUsualRuleLabel(rule){
+    if(!rule) return '';
+    const prefix = rule.kind === 'exclude' ? `${currentLang === 'pl' ? 'NIEDOSTĘPNY: ' : 'UNAVAILABLE: '}` : '';
+    return `${prefix}${String(rule.daySpec || '').trim()} ${String(rule.start || '')}-${String(rule.end || '')}`.trim();
+  }
+  function normalizeGridPayload(payload){
+    if(!payload || !Array.isArray(payload.rows)) return null;
+    return {
+      timeMins: Array.isArray(payload.timeMins)
+        ? payload.timeMins.map(n => Number(n)).filter(n => Number.isFinite(n)).sort((a,b) => a - b)
+        : [],
+      rows: payload.rows.map(row => ({
+        day: String((row && row.day) || ''),
+        weekday: Number((row && row.weekday) || 0),
+        slots: Array.isArray(row && row.slots)
+          ? row.slots
+            .map(item => ({
+              id: Number(item && item.id),
+              mins: Number(item && item.mins)
+            }))
+            .filter(item => Number.isFinite(item.id) && Number.isFinite(item.mins))
+            .sort((a,b) => a.mins - b.mins)
+          : []
+      })).filter(row => row.day)
+    };
+  }
+  function buildGridPayloadFromSlotsFallback(rawSlots){
+    const byDate = new Map();
+    const times = new Set();
+    const ordered = [...(rawSlots || [])].sort((a,b) => {
+      const da = new Date(a.start_utc).getTime();
+      const db = new Date(b.start_utc).getTime();
+      return da - db;
+    });
+
+    ordered.forEach(s => {
+      const d = new Date(s.start_utc);
+      if(isNaN(d)) return;
+      const parts = getDisplayDateTimeParts(d);
+      if(!parts) return;
+
+      const mins = parts.hour * 60 + parts.minute;
+      if(shouldHideSlotMinute(mins)) return;
+
+      const day = formatDisplayDate(d);
+      if(!byDate.has(day)){
+        byDate.set(day, {
+          day,
+          weekday: parts.weekday,
+          slots: []
+        });
+      }
+      byDate.get(day).slots.push({ id: Number(s.slot_id), mins });
+      times.add(mins);
+    });
+
+    return {
+      timeMins: [...times].sort((a,b) => a - b),
+      rows: [...byDate.values()]
+    };
+  }
+  function getBaseGridPayload(){
+    return (gridData && Array.isArray(gridData.rows))
+      ? gridData
+      : buildGridPayloadFromSlotsFallback(slots);
+  }
+  function hasAvailabilitySlots(){
+    const payload = getBaseGridPayload();
+    return !!(payload && Array.isArray(payload.rows) && payload.rows.length);
+  }
+  function applySlotStatePayload(data){
+    let updated = false;
+    const normalizedGrid = (data && data.gridData && typeof data.gridData === 'object')
+      ? normalizeGridPayload(data.gridData)
+      : null;
+    if(normalizedGrid){
+      gridData = normalizedGrid;
+      slots = [];
+      updated = true;
+    } else if(data && Array.isArray(data.slots) && data.slots.length){
+      slots = data.slots;
+      gridData = null;
+      updated = true;
+    } else if(data && data.gridData && typeof data.gridData === 'object'){
+      console.warn('Ignoring invalid grid payload from server cache.', data.gridData);
+    }
+    if(!updated) return;
+    gridModelCache = null;
+    gridModelCacheKey = '';
+    syncPaintHudVisibility();
+  }
+
+  function setStatus(t){ elStatus.textContent = t; }
+  function toast(msg, type){
+    const d = document.createElement('div');
+    d.className = `toast ${type === 'err' ? 'err' : 'ok'}`;
+    d.textContent = msg;
+    elToastWrap.appendChild(d);
+    window.setTimeout(() => {
+      d.remove();
+    }, 3200);
+  }
+  function hydrateUiState(){
+    try{
+      const raw = localStorage.getItem('dnd.panelState');
+      const parsed = raw ? JSON.parse(raw) : {};
+      setPanelOpen(elAvailabilityPanel, elAvailabilityBody, ('availability' in parsed) ? !!parsed.availability : true);
+      setPanelOpen(elTutorialPanel, elTutorialBody, ('tutorial' in parsed) ? !!parsed.tutorial : true);
+      setPanelOpen(elCampaignPanel, elCampaignBody, !!parsed.campaign);
+      setPanelOpen(elTrackerPanel, elTrackerBody, !!parsed.tracker);
+      setPanelOpen(elLockedPanel, elLockedBody, !!parsed.locked);
+      setPanelOpen(elWhoPanel, elWhoBody, !!parsed.who);
+      campaignOpenState = parsed.campaignOpenState || {};
+      const mineOnly = localStorage.getItem('dnd.mineOnly') === '1';
+      elMineOnly.checked = mineOnly;
+      const f = localStorage.getItem('dnd.campaignFilter') || 'ALL';
+      elCampaignFilter.value = f;
+    } catch(_){
+      setPanelOpen(elAvailabilityPanel, elAvailabilityBody, true);
+      setPanelOpen(elTutorialPanel, elTutorialBody, true);
+      setPanelOpen(elCampaignPanel, elCampaignBody, false);
+      setPanelOpen(elTrackerPanel, elTrackerBody, false);
+      setPanelOpen(elLockedPanel, elLockedBody, false);
+      setPanelOpen(elWhoPanel, elWhoBody, false);
+    }
+  }
+  function persistUiState(){
+    const state = {
+      availability: elAvailabilityPanel.getAttribute('data-open') === '1',
+      tutorial: elTutorialPanel.getAttribute('data-open') === '1',
+      campaign: elCampaignPanel.getAttribute('data-open') === '1',
+      tracker: elTrackerPanel.getAttribute('data-open') === '1',
+      locked: elLockedPanel.getAttribute('data-open') === '1',
+      who: elWhoPanel.getAttribute('data-open') === '1',
+      campaignOpenState
+    };
+    localStorage.setItem('dnd.panelState', JSON.stringify(state));
+    localStorage.setItem('dnd.mineOnly', elMineOnly.checked ? '1' : '0');
+    localStorage.setItem('dnd.campaignFilter', elCampaignFilter.value || 'ALL');
+  }
+  function maybeShowTour(){
+    if(localStorage.getItem('dnd.tourDismissed') === '1') return;
+    elTourBanner.style.display = 'flex';
+  }
+  function dismissTour(){
+    elTourBanner.style.display = 'none';
+    localStorage.setItem('dnd.tourDismissed', '1');
+  }
+  function setPanelOpen(panel, body, open){
+    panel.setAttribute('data-open', open ? '1' : '0');
+    body.style.display = open ? 'block' : 'none';
+  }
+  function setBusy(on, text){
+    elBusyOverlay.setAttribute('data-open', on ? '1' : '0');
+    elBusyOverlay.setAttribute('aria-busy', on ? 'true' : 'false');
+    elBusyText.textContent = text || t('common.loading');
+  }
+  function beginPlayerStateRequest(pid){
+    const request = {
+      id: ++playerStateRequestSeq,
+      pid: String(pid || '').trim()
+    };
+    activePlayerStateRequestId = request.id;
+    playerLoadInFlight = true;
+    syncAvailabilityActionState();
+    return request;
+  }
+  function completePlayerStateRequest(request){
+    if(!request) return;
+    if(request.id !== activePlayerStateRequestId) return;
+    playerLoadInFlight = false;
+    syncAvailabilityActionState();
+  }
+  function isStalePlayerStateRequest(request){
+    if(!request) return true;
+    const selectedPid = selectedPlayerId || getSelectedPlayerControlValue();
+    return request.id !== activePlayerStateRequestId ||
+      request.pid !== selectedPid ||
+      (!!selectedPid && request.pid !== selectedPid);
+  }
+  function startBusy(text){
+    busyCount += 1;
+    setBusy(true, text || t('common.loading'));
+  }
+  function endBusy(){
+    busyCount = Math.max(0, busyCount - 1);
+    if(busyCount === 0) setBusy(false);
+  }
+  function getGridMetrics(gridEl, timeCount, baseDateCol, baseSlotCol){
+    const wrap = gridEl && gridEl.parentElement ? gridEl.parentElement : null;
+    const wrapWidth = wrap ? Math.max(320, wrap.clientWidth - 2) : 0;
+    const dateCol = baseDateCol;
+    if(!timeCount){
+      return { dateCol, slotCol: baseSlotCol, totalWidth: dateCol };
+    }
+    if(!wrapWidth){
+      return {
+        dateCol,
+        slotCol: baseSlotCol,
+        totalWidth: dateCol + (timeCount * baseSlotCol)
+      };
+    }
+    const fitSlotCol = Math.floor((wrapWidth - dateCol) / timeCount);
+    const slotCol = Math.max(baseSlotCol, fitSlotCol);
+    return {
+      dateCol,
+      slotCol,
+      totalWidth: dateCol + (timeCount * slotCol)
+    };
+  }
+  function getGridModel(){
+    const payload = getBaseGridPayload();
+    const sourceKey = (gridData && Array.isArray(gridData.rows))
+      ? `grid:${slotDataKey}:${payload.rows.length}:${payload.timeMins.length}`
+      : `raw:${slotDataKey}:${slots.length}`;
+    const key = `${sourceKey}|${currentLang}`;
+    if(gridModelCache && gridModelCacheKey === key){
+      return gridModelCache;
+    }
+
+    gridModelCache = {
+      timeArr: (payload.timeMins || []).map(mins => [mins, `${pad2(Math.floor(mins / 60))}:${pad2(mins % 60)}`]),
+      rows: (payload.rows || []).map(row => {
+        const slotItems = (row.slots || [])
+          .map(item => ({
+            id: Number(item.id),
+            mins: Number(item.mins)
+          }))
+          .filter(item => Number.isFinite(item.id) && Number.isFinite(item.mins));
+        return {
+          day: String(row.day || ''),
+          weekday: Number(row.weekday || 0),
+          slotItems,
+          cellMap: new Map(slotItems.map(item => [item.mins, item.id]))
+        };
+      })
+    };
+    gridModelCacheKey = key;
+    return gridModelCache;
+  }
+  function getGridRow(day){
+    if(!day) return null;
+    return getGridModel().rows.find(row => row.day === day) || null;
+  }
+  function handleWindowResize(){
+    syncMobileMode();
+    if(isMobilePageVisible('availability')) renderGrid();
+    if(lastWhoGridData && isMobilePageVisible('who')) renderWhoCanPlay(lastWhoGridData);
+  }
+  function setDirty(flag){
+    isDirty = flag;
+    elDirty.textContent = isDirty ? t('availability.unsaved') : t('availability.all_saved');
+    elDirty.className = isDirty ? 'dirtyFlag' : 'savedFlag';
+    syncAvailabilityActionState();
+  }
+  function checkDirty(){
+    if (selected.size !== baselineSelected.size) return true;
+    for (const id of selected) {
+      if (!baselineSelected.has(id)) return true;
+    }
+    return false;
+  }
+  function refreshDirty(){
+    setDirty(checkDirty());
+    if(isDirty) scheduleAutosave();
+  }
+  function snapshotSelection(){
+    return new Set(selected);
+  }
+  function pushUndoState(){
+    undoStack.push(snapshotSelection());
+    if(undoStack.length > 50) undoStack.shift();
+    redoStack = [];
+    refreshHistoryButtons();
+  }
+  function refreshHistoryButtons(){
+    syncAvailabilityActionState();
+  }
+  function undoChange(){
+    if(!ensureAvailabilityEditMode()) return;
+    if(!undoStack.length) return;
+    redoStack.push(snapshotSelection());
+    selected = undoStack.pop();
+    renderGrid();
+    refreshDirty();
+    refreshHistoryButtons();
+    toast(t('messages.undo_applied'), 'ok');
+  }
+  function redoChange(){
+    if(!ensureAvailabilityEditMode()) return;
+    if(!redoStack.length) return;
+    undoStack.push(snapshotSelection());
+    selected = redoStack.pop();
+    renderGrid();
+    refreshDirty();
+    refreshHistoryButtons();
+    toast(t('messages.redo_applied'), 'ok');
+  }
+  function scheduleAutosave(){
+    if(!canEditLoadedAvailability()) return;
+    if(autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      if(!isDirty || autosaveInFlight || !canEditLoadedAvailability()) return;
+      save(true);
+    }, 2000);
+  }
+  function schedulePanelRefresh(){
+    if(panelRefreshTimer){
+      clearTimeout(panelRefreshTimer);
+    }
+    panelRefreshTimer = window.setTimeout(() => {
+      panelRefreshTimer = null;
+      if(isAvailabilityOnlyMode()) return;
+      refreshDashboardPanels(buildDeferredPanelRefreshOptions());
+    }, 250);
+  }
+  function refreshDashboardPanels(options, uiOptions){
+    const opts = options && typeof options === 'object' ? options : {};
+    if(!opts.includeCampaigns && !opts.includeTracker && !opts.includeWho) return;
+
+    const ui = uiOptions && typeof uiOptions === 'object' ? uiOptions : {};
+    const requestId = ++panelRefreshRequestSeq;
+    const perf = startPerf('client.dashboardPanels');
+    if(ui.showBusy){
+      startBusy(ui.busyText || t('common.loading'));
+    }
+
+    google.script.run
+      .withSuccessHandler(data => {
+        if(ui.showBusy) endBusy();
+        if(requestId !== panelRefreshRequestSeq){
+          endPerf(perf, 'stale');
+          return;
+        }
+        if(
+          data &&
+          data.whoGrid !== null &&
+          data.whoGrid !== undefined &&
+          String(whoCampaignValue || '').trim() &&
+          getLoadedWhoCampaignRef(data.whoGrid) !== String(whoCampaignValue || '').trim()
+        ){
+          data = Object.assign({}, data, { whoGrid: null });
+        }
+        applyDashboardData(data);
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        if(ui.showBusy) endBusy();
+        if(requestId !== panelRefreshRequestSeq){
+          endPerf(perf, 'stale-failed');
+          return;
+        }
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('common.failed_to_load', { msg }));
+        endPerf(perf, 'failed');
+      })
+      .getDashboardPanelsData(opts);
+  }
+  function setPaintModeTouch(mode){
+    paintModeTouch = mode === 'remove' ? 'remove' : 'add';
+    elPaintMode.textContent = paintModeTouch === 'remove' ? t('paint.removing') : t('paint.adding');
+    elPaintMode.className = paintModeTouch === 'remove' ? 'paintState remove' : 'paintState';
+    elPaintAdd.setAttribute('data-active', paintModeTouch === 'add' ? '1' : '0');
+    elPaintAdd.setAttribute('aria-pressed', paintModeTouch === 'add' ? 'true' : 'false');
+    elPaintRemove.setAttribute('data-active', paintModeTouch === 'remove' ? '1' : '0');
+    elPaintRemove.setAttribute('aria-pressed', paintModeTouch === 'remove' ? 'true' : 'false');
+  }
+  function syncPaintHudVisibility(){
+    const shouldShow = mobileMode
+      ? (currentMobilePage === 'availability' && hasAvailabilitySlots() && mobileSheetMode === 'edit' && canEditLoadedAvailability())
+      : isDown;
+    elPaintHud.setAttribute('data-open', shouldShow ? '1' : '0');
+  }
+  function beginPaint(isRemove){
+    if(!isAvailabilityEditMode()) return;
+    isDown = true;
+    paintTo = !isRemove;
+    setPaintModeTouch(isRemove ? 'remove' : 'add');
+    syncPaintHudVisibility();
+  }
+  function endPaint(){
+    isDown = false;
+    syncPaintHudVisibility();
+  }
+  function handleGlobalKeys(e){
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){
+      e.preventDefault();
+      if(e.shiftKey) redoChange();
+      else undoChange();
+      return;
+    }
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y'){
+      e.preventDefault();
+      redoChange();
+    }
+  }
+  function handleGlobalPointerEnd(){
+    endPaint();
+  }
+  function handleGlobalTouchEnd(){
+    clearPendingTouchPaint();
+    endPaint();
+  }
+  function getSlotCellFromTarget(target){
+    if(!target || !target.closest) return null;
+    const cell = target.closest('.slotCell[data-id]');
+    return cell && elGrid.contains(cell) ? cell : null;
+  }
+  function getCellId(cell){
+    const id = Number(cell && cell.dataset ? cell.dataset.id : 0);
+    return Number.isFinite(id) && id > 0 ? id : 0;
+  }
+  function canEditCell(cell){
+    const id = getCellId(cell);
+    return !!id && !lockedIds.has(id) && canEditLoadedAvailability() && !shouldBlockAvailabilityEdits();
+  }
+  function applyCellSelectionChange(cell, id, nextValue){
+    toggle(id, nextValue);
+    apply(cell, id);
+    refreshDirty();
+  }
+  function handleGridClick(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(cell) activeDay = cell.dataset.day || activeDay;
+  }
+  function handleGridFocusIn(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(cell) activeDay = cell.dataset.day || activeDay;
+  }
+  function handleGridMouseDown(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(!cell || mobileMode) return;
+    if(e.button !== 0 && e.button !== 2) return;
+    activeDay = cell.dataset.day || activeDay;
+    if(!canEditCell(cell)) return;
+    beginPaint(e.button === 2);
+    pushUndoState();
+    applyCellSelectionChange(cell, getCellId(cell), paintTo);
+    e.preventDefault();
+  }
+  function handleGridMouseOver(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(!cell) return;
+    setGridHover(cell.dataset.col, cell.dataset.day, cell);
+    if(mobileMode || !isDown || !canEditCell(cell)) return;
+    activeDay = cell.dataset.day || activeDay;
+    applyCellSelectionChange(cell, getCellId(cell), paintTo);
+  }
+  function handleGridMouseLeave(){
+    clearGridHover();
+  }
+  function handleGridContextMenu(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(cell) e.preventDefault();
+  }
+  function handleGridTouchStart(e){
+    if(!mobileMode) return;
+    const cell = getSlotCellFromTarget(e.target);
+    if(!cell || !canEditCell(cell)) return;
+    const touch = e.touches && e.touches[0];
+    if(!touch) return;
+    activeDay = cell.dataset.day || activeDay;
+    clearPendingTouchPaint();
+    pendingTouchPaint = {
+      id: getCellId(cell),
+      cell,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      activated: false,
+      timer: window.setTimeout(() => {
+        if(!pendingTouchPaint || pendingTouchPaint.cell !== cell) return;
+        pendingTouchPaint.activated = true;
+        beginPaint(paintModeTouch === 'remove');
+        pushUndoState();
+        applyCellSelectionChange(cell, pendingTouchPaint.id, paintTo);
+      }, MOBILE_TOUCH_PAINT_HOLD_MS)
+    };
+  }
+  function handleGridTouchMove(e){
+    if(!mobileMode) return;
+    if(pendingTouchPaint && !pendingTouchPaint.activated){
+      const touch = e.touches && e.touches[0];
+      if(!touch) return;
+      const dx = Math.abs(touch.clientX - pendingTouchPaint.startX);
+      const dy = Math.abs(touch.clientY - pendingTouchPaint.startY);
+      if(Math.max(dx, dy) > MOBILE_TOUCH_PAINT_MOVE_PX){
+        clearPendingTouchPaint();
+      }
+      return;
+    }
+    if(!isDown) return;
+    const touch = e.touches && e.touches[0];
+    if(!touch) return;
+    const cell = getSlotCellFromTarget(document.elementFromPoint(touch.clientX, touch.clientY));
+    if(!cell || !canEditCell(cell)) return;
+    activeDay = cell.dataset.day || activeDay;
+    applyCellSelectionChange(cell, getCellId(cell), paintTo);
+    e.preventDefault();
+  }
+  function handleGridTouchEnd(){
+    if(mobileMode && pendingTouchPaint){
+      const wasActivated = pendingTouchPaint.activated;
+      const cell = pendingTouchPaint.cell;
+      const id = pendingTouchPaint.id;
+      clearPendingTouchPaint();
+      if(!wasActivated && canEditCell(cell)){
+        paintTo = paintModeTouch !== 'remove';
+        pushUndoState();
+        applyCellSelectionChange(cell, id, paintTo);
+      }
+    }
+    endPaint();
+  }
+  function handleGridKeyDown(e){
+    const cell = getSlotCellFromTarget(e.target);
+    if(!cell) return;
+    const id = getCellId(cell);
+    if(!id) return;
+    if((e.key === ' ' || e.key === 'Enter') && canEditCell(cell)){
+      e.preventDefault();
+      pushUndoState();
+      applyCellSelectionChange(cell, id, !selected.has(id));
+      return;
+    }
+    const row = Number(cell.dataset.row || -1);
+    const col = Number(cell.dataset.col || -1);
+    if(row < 0 || col < 0) return;
+    let nextRow = row;
+    let nextCol = col;
+    if(e.key === 'ArrowRight') nextCol += 1;
+    else if(e.key === 'ArrowLeft') nextCol -= 1;
+    else if(e.key === 'ArrowDown') nextRow += 1;
+    else if(e.key === 'ArrowUp') nextRow -= 1;
+    else return;
+    e.preventDefault();
+    const next = elGrid.querySelector(`.slotCell[data-row="${nextRow}"][data-col="${nextCol}"][data-id]:not([tabindex="-1"])`);
+    if(next) next.focus();
+  }
+  function initGridInteractions(){
+    elGrid.addEventListener('click', handleGridClick);
+    elGrid.addEventListener('focusin', handleGridFocusIn);
+    elGrid.addEventListener('mousedown', handleGridMouseDown);
+    elGrid.addEventListener('mouseover', handleGridMouseOver);
+    elGrid.addEventListener('mouseleave', handleGridMouseLeave);
+    elGrid.addEventListener('contextmenu', handleGridContextMenu);
+    elGrid.addEventListener('touchstart', handleGridTouchStart, { passive:true });
+    elGrid.addEventListener('touchmove', handleGridTouchMove, { passive:false });
+    elGrid.addEventListener('touchend', handleGridTouchEnd, { passive:true });
+    elGrid.addEventListener('touchcancel', handleGridTouchEnd, { passive:true });
+    elGrid.addEventListener('keydown', handleGridKeyDown);
+  }
+
+  function tagClass(status){
+    if(status === 'LOCKED') return 'locked';
+    if(status === 'PLAYABLE') return 'playable';
+    if(status === 'ALMOST') return 'almost';
+    return 'missing';
+  }
+
+  function formatCampaignStatusLabel(item){
+    const status = String((item && item.status) || '');
+    const missing = String((item && item.missing_players) || '').trim();
+    const available = String((item && item.available_players) || '').trim();
+    const isOneShot = Boolean(item && item.is_oneshot);
+    const display = displayStatus(status);
+    if(status === 'PLAYABLE' || status === 'ALMOST'){
+      if(isOneShot && available) return `${display} (${t('campaign.available_inline', { available })})`;
+      if(!isOneShot && missing) return `${display} (${t('campaign.missing_inline', { missing })})`;
+      return display;
+    }
+    if(!missing) return display;
+    return `${display}: ${missing}`;
+  }
+
+  function toggleCampaignPanel(){
+    if(mobileMode) return;
+    const open = elCampaignPanel.getAttribute('data-open') === '1';
+    const nextOpen = !open;
+    setPanelOpen(elCampaignPanel, elCampaignBody, nextOpen);
+    if(nextOpen) ensureCampaignData();
+    persistUiState();
+  }
+  function toggleAvailabilityPanel(){
+    if(mobileMode) return;
+    const open = elAvailabilityPanel.getAttribute('data-open') === '1';
+    setPanelOpen(elAvailabilityPanel, elAvailabilityBody, !open);
+    if(!open) renderGrid();
+    syncPaintHudVisibility();
+    persistUiState();
+  }
+  function toggleTutorialPanel(){
+    if(mobileMode) return;
+    const open = elTutorialPanel.getAttribute('data-open') === '1';
+    setPanelOpen(elTutorialPanel, elTutorialBody, !open);
+    persistUiState();
+  }
+  function toggleTrackerPanel(){
+    if(mobileMode) return;
+    const open = elTrackerPanel.getAttribute('data-open') === '1';
+    const nextOpen = !open;
+    setPanelOpen(elTrackerPanel, elTrackerBody, nextOpen);
+    if(nextOpen) ensureTrackerData();
+    persistUiState();
+  }
+  function toggleLockedPanel(){
+    if(mobileMode) return;
+    const open = elLockedPanel.getAttribute('data-open') === '1';
+    const nextOpen = !open;
+    setPanelOpen(elLockedPanel, elLockedBody, nextOpen);
+    if(nextOpen) ensureCampaignData();
+    persistUiState();
+  }
+  function toggleWhoPanel(){
+    if(mobileMode) return;
+    const open = elWhoPanel.getAttribute('data-open') === '1';
+    const nextOpen = !open;
+    setPanelOpen(elWhoPanel, elWhoBody, nextOpen);
+    if(nextOpen) ensureWhoData({ showBusy: true, showLoading: true });
+    persistUiState();
+  }
+
+
+  function initPlayers(data){
+    playersCache = data.players || [];
+    playerUsualById = new Map(
+      playersCache.map(p => [String(p.player_id || ''), String(p.usual_times || '')])
+    );
+    renderPlayerOptions();
+    if(selectedPlayerId || currentPlayerId) setUsualOptionsForPlayer(selectedPlayerId || currentPlayerId);
+    else setDefaultPresetOption();
+  }
+  function applyDashboardData(payload){
+    const data = payload && typeof payload === 'object' ? payload : {};
+    if(data.init) initPlayers(data.init);
+    if(data.campaignGroups !== null && data.campaignGroups !== undefined){
+      campaignDataLoaded = true;
+      renderCampaignOptions(data.campaignGroups);
+    }
+    if(data.trackerRows !== null && data.trackerRows !== undefined){
+      trackerDataLoaded = true;
+      trackerRowsCache = data.trackerRows || [];
+      renderTracker(trackerRowsCache);
+    }
+    if(data.whoGrid !== null && data.whoGrid !== undefined){
+      whoDataLoaded = true;
+      renderWhoCanPlay(data.whoGrid);
+    }
+  }
+  function getLoadedWhoCampaignRef(data){
+    if(!data || typeof data !== 'object') return '';
+    const selected = data.selected_campaign || {};
+    return String(selected.campaign_id || selected.campaign || '').trim();
+  }
+  function ensureCampaignData(){
+    if(campaignDataLoaded){
+      renderCampaignOptions(campaignGroupsCache);
+      return;
+    }
+    if(campaignRequestInFlight) return;
+    refreshCampaigns();
+  }
+  function ensureTrackerData(){
+    if(trackerDataLoaded){
+      renderTracker(trackerRowsCache);
+      return;
+    }
+    if(trackerRequestInFlight) return;
+    refreshTracker();
+  }
+  function ensureWhoData(opts){
+    const ref = String(whoCampaignValue || '').trim();
+    if(whoDataLoaded && lastWhoGridData && getLoadedWhoCampaignRef(lastWhoGridData) === ref){
+      renderWhoCanPlay(lastWhoGridData);
+      return;
+    }
+    if(inflightWhoRequestId && inflightWhoRequestRef === ref) return;
+    refreshWhoCanPlay(ref, opts);
+  }
+  function refreshCampaigns(){
+    if(campaignRequestInFlight) return;
+    campaignRequestInFlight = true;
+    elNext.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`;
+    elLocked.innerHTML = `<div class="skeleton"></div>`;
+    const perf = startPerf('client.campaigns');
+    startBusy(t('busy.loading_campaigns'));
+    google.script.run
+      .withSuccessHandler(data => {
+        campaignRequestInFlight = false;
+        campaignDataLoaded = true;
+        renderCampaignOptions(data);
+        endBusy();
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        campaignRequestInFlight = false;
+        const msg = (err && err.message) ? err.message : String(err);
+        elNext.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('common.failed_to_load', { msg }))}</span>`;
+        elLocked.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('common.failed_to_load', { msg }))}</span>`;
+        endBusy();
+        endPerf(perf, 'failed');
+      })
+      .getCampaignSessionOptions();
+  }
+
+  function campaignItemSortValue(item){
+    if(item && item.start_utc){
+      const ts = new Date(item.start_utc).getTime();
+      if(Number.isFinite(ts)) return ts;
+    }
+    const fallback = parseCampaignDateTime_(item && item.date, item && item.time);
+    if(Number.isFinite(fallback)) return fallback;
+    return Number.MAX_SAFE_INTEGER;
+  }
+  function parseCampaignDateTime_(dateText, timeText){
+    const dRaw = String(dateText || '').trim();
+    const tRaw = String(timeText || '').trim();
+    if(!dRaw || !tRaw) return NaN;
+
+    const dMatch = dRaw.match(/(\d{1,2})[./](\d{1,2})[./](\d{4})/);
+    const tMatch = tRaw.match(/(\d{1,2}):(\d{2})/); // first hh:mm from range
+    if(!dMatch || !tMatch) return NaN;
+
+    const day = Number(dMatch[1]);
+    const month = Number(dMatch[2]);
+    const year = Number(dMatch[3]);
+    const hour = Number(tMatch[1]);
+    const min = Number(tMatch[2]);
+    if(
+      !Number.isFinite(day) || !Number.isFinite(month) || !Number.isFinite(year) ||
+      !Number.isFinite(hour) || !Number.isFinite(min)
+    ) return NaN;
+
+    // Local-time timestamp for deterministic chronological sort.
+    return new Date(year, month - 1, day, hour, min, 0, 0).getTime();
+  }
+
+  function renderLockedCampaigns(groups, isAdmin){
+    const lockedItems = (groups || []).flatMap(g =>
+      (g.items || [])
+        .filter(it => it.status === 'LOCKED')
+        .map(it => ({
+          ...it,
+          campaign: it.campaign || g.campaign || ''
+        }))
+    ).sort((a, b) => {
+      const diff = campaignItemSortValue(a) - campaignItemSortValue(b);
+      if(diff !== 0) return diff;
+      return String(a.campaign || '').localeCompare(String(b.campaign || ''));
+    });
+
+    if(!lockedItems.length){
+      elLocked.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('locked.none'))}</span>`;
+      return;
+    }
+
+    elLocked.innerHTML = lockedItems.map(it => {
+      const showUnlock = isAdmin && String(it.slot_ids_merged || '').trim() !== '';
+      return `
+        <div class="pill">
+          <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+              <strong style="font-size:14px;">${escapeHtml(it.campaign)}</strong>
+              <span class="tag locked">${escapeHtml(displayStatus('LOCKED'))}</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:12px;">
+              <span>${escapeHtml(formatCampaignTimeRange(it))} ${escapeHtml(formatCampaignDate(it))}</span>
+              ${it.missing_players ? `<span>${escapeHtml(String(it.missing_players))}</span>` : ``}
+            </div>
+            ${showUnlock ? `
+              <div>
+                <button class="btn unlockBtn"
+                  data-campaign="${escapeAttr(it.campaign)}"
+                  data-slotids="${escapeAttr(it.slot_ids_merged)}"
+                  style="padding:6px 10px;font-size:12px">
+                  ${escapeHtml(t('availability.unlock'))}
+                </button>
+              </div>` : ``}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  }
+
+  function getCampaignFilterState(){
+    return {
+      isAdmin: isAdminContext(),
+      filterPlayerId: selectedPlayerId || currentPlayerId,
+      statusFilter: elCampaignFilter.value || 'ALL',
+      mineOnly: !!elMineOnly.checked
+    };
+  }
+
+  function getVisibleCampaignItems(group, filterState){
+    const state = filterState || getCampaignFilterState();
+    const items = (group && Array.isArray(group.items) ? group.items : [])
+      .filter(it => state.statusFilter === 'ALL' ? true : String(it.status || '') === state.statusFilter);
+    if(state.mineOnly && state.filterPlayerId){
+      const mineMatches = items.some(it =>
+        String(it.required_players || '').split(',').map(s => s.trim()).includes(state.filterPlayerId)
+      );
+      if(!mineMatches) return null;
+    }
+    return items;
+  }
+
+  function buildCampaignRowsHtml(group, items, isAdmin){
+    const list = Array.isArray(items) ? items : [];
+    if(!list.length){
+      return `<span style="color:var(--muted); font-size:12px;">${escapeHtml(t('campaign.no_upcoming_windows'))}</span>`;
+    }
+    return list.map(it => {
+      const item = { ...it, is_oneshot: Boolean(it.is_oneshot || (group && group.is_oneshot)) };
+      const showLock = isAdmin && it.status === 'PLAYABLE' && String(it.slot_ids_merged || '').trim() !== '';
+      const showUnlock = isAdmin && it.status === 'LOCKED' && String(it.slot_ids_merged || '').trim() !== '';
+      const missingInline = String(it.missing_players || '').trim();
+      return `
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:6px 0;">
+          <span style="min-width:240px">${escapeHtml(formatCampaignTimeRange(it))} ${escapeHtml(formatCampaignDate(it))}</span>
+          <span class="tag ${tagClass(it.status)}">
+            ${escapeHtml(formatCampaignStatusLabel(item))}
+          </span>
+          ${missingInline ? `<span class="missingLine">${escapeHtml(t('campaign.missing_line', { missing: missingInline }))}</span>` : ``}
+          ${showLock ? `
+            <button class="btn lockBtn"
+              data-campaign="${escapeAttr(it.campaign)}"
+              data-slotids="${escapeAttr(it.slot_ids_merged)}"
+              style="padding:6px 10px;font-size:12px">
+              ${escapeHtml(t('availability.lock'))}
+            </button>` : ``}
+          ${showUnlock ? `
+            <button class="btn unlockBtn"
+              data-campaign="${escapeAttr(it.campaign)}"
+              data-slotids="${escapeAttr(it.slot_ids_merged)}"
+              style="padding:6px 10px;font-size:12px">
+              ${escapeHtml(t('availability.unlock'))}
+            </button>` : ``}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function hydrateCampaignBody(pill){
+    if(!pill) return;
+    const body = pill.querySelector('.campBody');
+    if(!body || body.getAttribute('data-rendered') === '1') return;
+    const group = (campaignGroupsCache || []).find(g => String(g.campaign || '') === String(pill.dataset.camp || ''));
+    if(!group) return;
+    const state = getCampaignFilterState();
+    const items = getVisibleCampaignItems(group, state) || [];
+    body.innerHTML = buildCampaignRowsHtml(group, items, state.isAdmin);
+    body.setAttribute('data-rendered', '1');
+  }
+
+  function handleCampaignPanelClick(e){
+    const lockBtn = e.target.closest('.lockBtn');
+    if(lockBtn && elNext.contains(lockBtn)){
+      e.stopPropagation();
+      lockTime(lockBtn.dataset.campaign, lockBtn.dataset.slotids, lockBtn);
+      return;
+    }
+
+    const unlockBtn = e.target.closest('.unlockBtn');
+    if(unlockBtn && elNext.contains(unlockBtn)){
+      e.stopPropagation();
+      unlockTime(unlockBtn.dataset.campaign, unlockBtn.dataset.slotids, unlockBtn);
+      return;
+    }
+
+    const hdr = e.target.closest('.pill .campHeader[data-toggle="1"]');
+    if(!hdr || !elNext.contains(hdr)) return;
+    const pill = hdr.closest('.pill');
+    if(!pill) return;
+    const nextOpen = pill.getAttribute('data-open') !== '1';
+    pill.setAttribute('data-open', nextOpen ? '1' : '0');
+    if(nextOpen) hydrateCampaignBody(pill);
+    campaignOpenState[pill.dataset.camp || ''] = nextOpen;
+    persistUiState();
+  }
+
+  function handleLockedCampaignClick(e){
+    const unlockBtn = e.target.closest('.unlockBtn');
+    if(!unlockBtn || !elLocked.contains(unlockBtn)) return;
+    e.stopPropagation();
+    unlockTime(unlockBtn.dataset.campaign, unlockBtn.dataset.slotids, unlockBtn);
+  }
+
+  function renderCampaignOptions(groups){
+    try{
+      campaignGroupsCache = groups || [];
+      persistDashboardCache();
+      if(!groups || !groups.length){
+        elNext.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('campaign.no_sessions_yet'))}</span>`;
+        elLocked.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('locked.none'))}</span>`;
+        return;
+      }
+
+      const filterState = getCampaignFilterState();
+      renderLockedCampaigns(groups, filterState.isAdmin);
+
+      const campaignHtml = groups.map(g => {
+        const items = getVisibleCampaignItems(g, filterState);
+        if(!items) return '';
+
+        const counts = { LOCKED:0, PLAYABLE:0, ALMOST:0, MISSING:0 };
+
+        (g.items || []).forEach(it => counts[it.status] = (counts[it.status]||0) + 1);
+        const isOpen = !!campaignOpenState[g.campaign];
+        const bodyHtml = isOpen ? buildCampaignRowsHtml(g, items, filterState.isAdmin) : '';
+
+        return `
+          <div class="pill" data-open="${isOpen ? '1' : '0'}" data-camp="${escapeAttr(g.campaign)}">
+            <div style="display:flex; flex-direction:column; gap:6px; width:100%;">
+              <div class="campHeader" data-toggle="1">
+                <div class="campLeft">
+                  <span class="caret"></span>
+                  <strong style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${escapeHtml(g.campaign)}
+                  </strong>
+                </div>
+
+                <div class="campMeta">
+                  <span class="tag locked">${escapeHtml(displayStatus('LOCKED'))} ${counts.LOCKED||0}</span>
+                  <span class="tag playable">${escapeHtml(displayStatus('PLAYABLE'))} ${counts.PLAYABLE||0}</span>
+                  <span class="tag almost">${escapeHtml(displayStatus('ALMOST'))} ${counts.ALMOST||0}</span>
+                  <span class="tag missing">${escapeHtml(displayStatus('MISSING'))} ${counts.MISSING||0}</span>
+                </div>
+              </div>
+
+              <div class="campBody" data-rendered="${isOpen ? '1' : '0'}">
+                ${bodyHtml}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      elNext.innerHTML = campaignHtml.trim()
+        ? campaignHtml
+        : `<span style="color:var(--muted)">${escapeHtml(t('campaign.no_match_filters'))}</span>`;
+      persistUiState();
+
+    } catch(e){
+      const msg = e && e.message ? e.message : String(e);
+      elNext.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('common.render_error', { msg }))}</span>`;
+    }
+  }
+
+  function refreshTracker(){
+    if(trackerRequestInFlight) return;
+    trackerRequestInFlight = true;
+    elTracker.innerHTML = `<div class="skeleton" style="max-width:320px"></div>`;
+    const perf = startPerf('client.tracker');
+    startBusy(t('busy.loading_tracker'));
+    google.script.run
+      .withSuccessHandler(rows => {
+        trackerRequestInFlight = false;
+        trackerDataLoaded = true;
+        trackerRowsCache = rows || [];
+        renderTracker(rows);
+        endBusy();
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        trackerRequestInFlight = false;
+        const msg = (err && err.message) ? err.message : String(err);
+        elTracker.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('tracker.failed', { msg }))}</span>`;
+        endBusy();
+        endPerf(perf, 'failed');
+      })
+      .getTrackerStatus();
+  }
+
+  function renderTracker(rows){
+    trackerRowsCache = rows || [];
+    persistDashboardCache();
+    if(!rows || !rows.length){
+      elTracker.innerHTML = `<span style="color:var(--muted)">${escapeHtml(t('tracker.none'))}</span>`;
+      return;
+    }
+    elTracker.innerHTML = rows.map(r => {
+      const cls = (r.status === 'UPDATED') ? 'trk trkOk' : 'trk trkBad';
+      const when = r.last_saved_at ? t('tracker.when_ago', { age: formatAgeLabel(r.last_saved_at) }) : t('common.never');
+      const latestDay = r.furthest_slot_end_at
+        ? t('tracker.latest_day', { date: formatDisplayDate(new Date(r.furthest_slot_end_at)) })
+        : t('tracker.latest_day_none');
+
+      return `
+        <div class="${cls}">
+          <strong>${escapeHtml(r.name)}</strong>
+          <span class="tag ${r.status==='UPDATED'?'playable':'missing'}">${escapeHtml(displayStatus(r.status))}</span>
+          <span class="small">${escapeHtml(when)}</span>
+          <span class="small">${escapeHtml(latestDay)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function load(){
+    selectedPlayerId = getSelectedPlayerControlValue();
+    const pid = selectedPlayerId;
+    if(!pid){
+      setStatus(t('messages.pick_player_first'));
+      return;
+    }
+    const request = beginPlayerStateRequest(pid);
+    const perf = startPerf('client.playerLoad');
+    startBusy(t('busy.loading_player', { player: pid }));
+
+    google.script.run
+      .withSuccessHandler(d=>{
+        if(isStalePlayerStateRequest(request)){
+          completePlayerStateRequest(request);
+          endBusy();
+          endPerf(perf, 'stale');
+          return;
+        }
+        completePlayerStateRequest(request);
+        applyLoadedPlayerState(pid, d, { resetMobileMode:true });
+        setStatus(t('messages.loaded_slots', { count: selected.size, player: currentPlayerId }));
+        toast(t('messages.loaded_player', { player: currentPlayerId }), 'ok');
+        endBusy();
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        if(isStalePlayerStateRequest(request)){
+          completePlayerStateRequest(request);
+          endBusy();
+          endPerf(perf, 'stale-failed');
+          return;
+        }
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.load_failed', { msg }));
+        toast(t('messages.load_failed', { msg }), 'err');
+        completePlayerStateRequest(request);
+        endBusy();
+        endPerf(perf, 'failed');
+      })
+      .getInitData(pid, { slotDataKey });
+  }
+
+  function refreshCurrentLockState(){
+    if(!currentPlayerId) return;
+    const request = beginPlayerStateRequest(currentPlayerId);
+    const perf = startPerf('client.lockRefresh');
+    startBusy(t('busy.refreshing_lock_state'));
+    google.script.run
+      .withSuccessHandler(d=>{
+        if(isStalePlayerStateRequest(request)){
+          completePlayerStateRequest(request);
+          endBusy();
+          endPerf(perf, 'stale');
+          return;
+        }
+        completePlayerStateRequest(request);
+        applyLoadedPlayerState(currentPlayerId, mergeCachedPlayerState(currentPlayerId, d) || d);
+        endBusy();
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        if(isStalePlayerStateRequest(request)){
+          completePlayerStateRequest(request);
+          endBusy();
+          endPerf(perf, 'stale-failed');
+          return;
+        }
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.lock_state_refresh_failed', { msg }));
+        toast(t('messages.lock_state_refresh_failed', { msg }), 'err');
+        completePlayerStateRequest(request);
+        endBusy();
+        endPerf(perf, 'failed');
+      })
+      .getInitData(currentPlayerId, { slotDataKey });
+  }
+
+  function save(isAuto){
+    if(!canEditLoadedAvailability()){
+      if(currentPlayerId && selectedPlayerId && currentPlayerId !== selectedPlayerId){
+        const msg = t('messages.player_switch_pending', { player: selectedPlayerId });
+        setStatus(msg);
+        if(!isAuto) toast(msg, 'err');
+      } else {
+        setStatus(t('messages.pick_player_first'));
+      }
+      return;
+    }
+    if(!isDirty) return;
+    if(autosaveInFlight) return;
+    autosaveInFlight = true;
+    if(autosaveTimer){
+      clearTimeout(autosaveTimer);
+      autosaveTimer = null;
+    }
+    startBusy(isAuto ? t('busy.autosaving') : t('busy.saving_changes'));
+    google.script.run
+      .withSuccessHandler(res=>{
+        applyDashboardData(res);
+        setStatus(isAuto ? t('messages.autosaved') : t('messages.saved'));
+        baselineSelected = new Set(selected);
+        refreshDirty();
+        persistCurrentPlayerCache();
+        autosaveInFlight = false;
+        endBusy();
+        if(isAuto) toast(t('messages.autosaved_changes'), 'ok');
+        else toast(t('messages.saved_changes'), 'ok');
+      })
+      .withFailureHandler(err=>{
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.save_failed', { msg }));
+        autosaveInFlight = false;
+        endBusy();
+        toast(t('messages.save_failed', { msg }), 'err');
+      })
+      .saveAvailability(currentPlayerId, [...selected], {
+        includeCampaigns: campaignDataLoaded,
+        includeTracker: trackerDataLoaded,
+        includeWho: whoDataLoaded,
+        whoCampaignRef: whoCampaignValue || ''
+      });
+  }
+
+  function lockTime(campaign, slotIds, btn){
+    if(!isAdminContext()){
+      setStatus(t('messages.only_admin_lock'));
+      return;
+    }
+    if(!slotIds || String(slotIds).trim() === ''){
+      setStatus(t('messages.lock_failed_missing'));
+      return;
+    }
+    if(!confirm(t('messages.confirm_lock', { campaign }))) return;
+
+    if(btn) btn.disabled = true;
+    setStatus(t('messages.locking'));
+    startBusy(t('busy.locking', { campaign }));
+
+    google.script.run
+      .withSuccessHandler((res)=>{
+        const eid = res && res.eventId ? res.eventId : '';
+        const gc = res && res.guests ? res.guests.length : 0;
+        const warn = res && res.invite_error ? t('messages.invite_error', { msg: res.invite_error }) : '';
+        const eventText = eid ? t('messages.event_suffix', { id: eid }) : '';
+        setStatus(t('messages.locked_time', { campaign, count: gc, event: eventText, warn }));
+        toast(t('messages.locked_time', { campaign, count: gc, event: eventText, warn }), 'ok');
+        refreshCurrentLockState();
+        schedulePanelRefresh();
+        endBusy();
+      })
+      .withFailureHandler(err=>{
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.lock_failed', { msg }));
+        toast(t('messages.lock_failed', { msg }), 'err');
+        if(btn) btn.disabled = false;
+        endBusy();
+      })
+      .lockCampaignTime(currentPlayerId, campaign, slotIds);
+  }
+
+  function unlockTime(campaign, slotIds, btn){
+    if(!isAdminContext()){
+      setStatus(t('messages.only_admin_unlock'));
+      return;
+    }
+    if(!slotIds || String(slotIds).trim() === ''){
+      setStatus(t('messages.unlock_failed_missing'));
+      return;
+    }
+    if(!confirm(t('messages.confirm_unlock', { campaign }))) return;
+
+    if(btn) btn.disabled = true;
+    setStatus(t('messages.unlocking'));
+    startBusy(t('busy.unlocking', { campaign }));
+
+    google.script.run
+      .withSuccessHandler((res)=>{
+        const removedEvent = res && res.calendar_event_removed ? t('messages.calendar_event_removed') : '';
+        setStatus(t('messages.unlocked_time', { campaign, removedEvent }));
+        toast(t('messages.unlocked_time', { campaign, removedEvent }), 'ok');
+        refreshCurrentLockState();
+        schedulePanelRefresh();
+        endBusy();
+      })
+      .withFailureHandler(err=>{
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(t('messages.unlock_failed', { msg }));
+        toast(t('messages.unlock_failed', { msg }), 'err');
+        if(btn) btn.disabled = false;
+        endBusy();
+      })
+      .unlockCampaignTime(currentPlayerId, campaign, slotIds);
+  }
+
+  function renderGrid(){
+    clearGridHover();
+    const model = getGridModel();
+    const timeArr = model.timeArr;
+    const editBlocked = shouldBlockAvailabilityEdits() || !canEditLoadedAvailability();
+    const metrics = getGridMetrics(elGrid, timeArr.length, 200, 80);
+    const dateCol = metrics.dateCol;
+    const slotCol = metrics.slotCol;
+    elGrid.style.gridTemplateColumns=`${dateCol}px repeat(${timeArr.length},${slotCol}px)`;
+    elGrid.style.width = `${metrics.totalWidth}px`;
+    elGrid.style.minWidth = `${metrics.totalWidth}px`;
+
+    const frag=document.createDocumentFragment();
+    frag.appendChild(makeHead(t('grid.date_time'),'corner'));
+    timeArr.forEach(([mins, label], idx)=>{
+      const head = makeHead(label,'head');
+      head.dataset.col = String(idx);
+      head.classList.add(timeBandClass(mins));
+      frag.appendChild(head);
+    });
+
+    let rowIdx = 0;
+    for(const row of model.rows){
+      const day = row.day;
+      const h=document.createElement('div');
+      h.className='head dateHead';
+      h.dataset.day = day;
+      h.dataset.row = String(rowIdx);
+      h.innerHTML=`<div class="dayLabel"><span>${escapeHtml(day)}</span>
+        <div class="controlsGroup">
+          <button class="btn dayBtn" type="button" data-action="fill" ${editBlocked ? 'disabled' : ''}>${escapeHtml(t('grid.fill'))}</button>
+          <button class="btn dayBtn" type="button" data-action="clear" ${editBlocked ? 'disabled' : ''}>${escapeHtml(t('grid.clear'))}</button>
+          <button class="btn dayBtn" type="button" data-action="invert" ${editBlocked ? 'disabled' : ''}>${escapeHtml(t('grid.invert'))}</button>
+        </div>
+      </div>`;
+      h.querySelectorAll('.dayBtn[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          activeDay = day;
+          if(btn.dataset.action === 'fill') fillDay(day);
+          else if(btn.dataset.action === 'clear') clearDay(day);
+          else if(btn.dataset.action === 'invert') invertDay(day);
+        });
+      });
+      frag.appendChild(h);
+
+      const map = row.cellMap;
+      timeArr.forEach(([m], idx)=>{
+        const c=document.createElement('div');
+        c.className='cell slotCell';
+        c.dataset.col = String(idx);
+        c.dataset.day = day;
+        c.dataset.row = String(rowIdx);
+        const id=map.get(m);
+        if(id){
+          c.dataset.id=id;
+          c.tabIndex = 0;
+          apply(c,id);
+
+          if(lockedIds.has(id)){
+            const prevM = idx > 0 ? timeArr[idx-1][0] : null;
+            const prevId = prevM !== null ? map.get(prevM) : null;
+            const curCamp = lockedCampaignById.get(id) || '';
+            const prevCamp = prevId ? (lockedCampaignById.get(prevId) || '') : '';
+            if(curCamp && curCamp !== prevCamp){
+              c.textContent = campaignInitials(curCamp);
+            } else {
+              c.textContent = '';
+            }
+          } else {
+            c.textContent = '';
+          }
+
+          if(lockedIds.has(id) || editBlocked){
+            c.tabIndex = -1;
+            if(!lockedIds.has(id) && editBlocked){
+              c.classList.add('slotCellView');
+            }
+          }
+        }
+        frag.appendChild(c);
+      });
+      rowIdx += 1;
+    }
+
+    elGrid.innerHTML='';
+    elGrid.appendChild(frag);
+  }
+
+  function fillDay(day){
+    if(!ensureAvailabilityEditMode()) return;
+    const row = getGridRow(day);
+    if(!row) return;
+    pushUndoState();
+    row.slotItems.forEach(item => {
+      if(!lockedIds.has(item.id)) selected.add(item.id);
+    });
+    renderGrid();
+    refreshDirty();
+    toast(t('messages.filled_day', { day }), 'ok');
+  }
+  function clearDay(day){
+    if(!ensureAvailabilityEditMode()) return;
+    const row = getGridRow(day);
+    if(!row) return;
+    pushUndoState();
+    row.slotItems.forEach(item => {
+      if(!lockedIds.has(item.id)) selected.delete(item.id);
+    });
+    renderGrid();
+    refreshDirty();
+    toast(t('messages.cleared_day', { day }), 'ok');
+  }
+  function invertDay(day){
+    if(!ensureAvailabilityEditMode()) return;
+    const row = getGridRow(day);
+    if(!row) return;
+    pushUndoState();
+    row.slotItems.forEach(item => {
+      if(lockedIds.has(item.id)) return;
+      if(selected.has(item.id)) selected.delete(item.id);
+      else selected.add(item.id);
+    });
+    renderGrid();
+    refreshDirty();
+    toast(t('messages.inverted_day', { day }), 'ok');
+  }
+  function clearAll(){
+    if(!currentPlayerId){
+      setStatus(t('messages.pick_player_first'));
+      return;
+    }
+    if(!ensureAvailabilityEditMode()) return;
+    if(!confirm(t('messages.confirm_clear_all'))) return;
+    pushUndoState();
+    selected = new Set([...selected].filter(id => lockedIds.has(id)));
+    renderGrid();
+    refreshDirty();
+    toast(t('messages.cleared_all_unlocked'), 'ok');
+  }
+  function copyPreviousDay(){
+    if(!ensureAvailabilityEditMode()) return;
+    if(!activeDay){
+      setStatus(t('messages.click_day_first_copy'));
+      return;
+    }
+    const rows = getGridModel().rows;
+    const idx = rows.findIndex(row => row.day === activeDay);
+    if(idx <= 0){
+      setStatus(t('messages.no_previous_day'));
+      return;
+    }
+    const prevRow = rows[idx - 1];
+    const currentRow = rows[idx];
+    const prevDay = prevRow.day;
+    pushUndoState();
+    const prevSet = new Set(
+      prevRow.slotItems
+        .filter(item => selected.has(item.id))
+        .map(item => item.mins)
+    );
+    currentRow.slotItems.forEach(item => {
+      if(lockedIds.has(item.id)) return;
+      if(prevSet.has(item.mins)) selected.add(item.id);
+      else selected.delete(item.id);
+    });
+    lastCopiedDay = prevDay;
+    renderGrid();
+    refreshDirty();
+    toast(t('messages.copied_day', { from: prevDay, to: activeDay }), 'ok');
+  }
+  function invertActiveDay(){
+    if(!ensureAvailabilityEditMode()) return;
+    if(!activeDay){
+      setStatus(t('messages.click_day_first_invert'));
+      return;
+    }
+    invertDay(activeDay);
+  }
+  function setGridHover(col, day, cell){
+    const nextCol = Number(col);
+    const nextDay = String(day || '');
+    if(hoverCol === nextCol && hoverDay === nextDay){
+      if(cell) cell.classList.add('slotHover');
+      return;
+    }
+    clearGridHover();
+    hoverCol = nextCol;
+    hoverDay = nextDay;
+    cell.classList.add('slotHover');
+    elGrid.querySelectorAll(`.slotCell[data-col="${hoverCol}"], .head[data-col="${hoverCol}"]`).forEach(x => x.classList.add('hoverCol'));
+    elGrid.querySelectorAll('.dateHead').forEach(x => {
+      if((x.dataset.day || '') === hoverDay) x.classList.add('hoverRowHead');
+    });
+  }
+  function clearGridHover(){
+    elGrid.querySelectorAll('.hoverCol').forEach(x => x.classList.remove('hoverCol'));
+    elGrid.querySelectorAll('.hoverRowHead').forEach(x => x.classList.remove('hoverRowHead'));
+    elGrid.querySelectorAll('.slotHover').forEach(x => x.classList.remove('slotHover'));
+    hoverCol = -1;
+    hoverDay = '';
+  }
+  function timeLabelForDate(d){
+    const parts = getDisplayDateTimeParts(d);
+    if(!parts) return '';
+    return `${pad2(parts.hour)}:${pad2(parts.minute)}`;
+  }
+  function timeBandClass(mins){
+    if(mins < 12*60) return 'timeMorning';
+    if(mins < 18*60) return 'timeAfternoon';
+    return 'timeEvening';
+  }
+  function shouldHideSlotMinute(mins){
+    return Number(mins) < MIN_VISIBLE_SLOT_MINUTES;
+  }
+
+  function toggle(id,on){ on?selected.add(id):selected.delete(id); }
+  function apply(c,id){
+    c.classList.toggle('selected',selected.has(id));
+    c.classList.toggle('unselected',!selected.has(id));
+    c.classList.toggle('lockedCell',lockedIds.has(id));
+  }
+  function campaignInitials(name){
+    const parts = String(name || '').match(/[A-Za-z0-9]+/g) || [];
+    let initials = parts.map(p => p[0]).join('').toUpperCase();
+    if(initials.length < 2 && parts[0]) initials = parts[0].slice(0,3).toUpperCase();
+    return initials.slice(0,3);
+  }
+  function applyPreset(mode){
+    if(!ensureAvailabilityEditMode()) return;
+    if(!currentPlayerId){
+      setStatus(t('messages.pick_player_first'));
+      return;
+    }
+    if(!currentUsualRules.length){
+      setStatus(t('messages.no_usual_found'));
+      return;
+    }
+    const preset = elPreset.value;
+    if(!preset){
+      setStatus(t('messages.choose_preset_first'));
+      return;
+    }
+    const rules = preset === '__all__'
+      ? currentUsualRules
+      : currentUsualRules.filter(r => r.id === preset);
+
+    pushUndoState();
+    const next = mode === 'replace' ? new Set() : new Set(selected);
+    (getBaseGridPayload().rows || []).forEach(row => {
+      const weekday = Number(row.weekday);
+      (row.slots || []).forEach(item => {
+        const id = Number(item.id);
+        const mins = Number(item.mins);
+        if(!Number.isFinite(id) || !Number.isFinite(mins) || lockedIds.has(id)) return;
+        if(matchAnyRuleSlot(weekday, mins, rules, 'include')) next.add(id);
+        if(matchAnyRuleSlot(weekday, mins, rules, 'exclude')) next.delete(id);
+      });
+    });
+    selected = next;
+    renderGrid();
+    refreshDirty();
+    setStatus(mode === 'replace' ? t('messages.usual_applied_replace') : t('messages.usual_applied_add'));
+    toast(mode === 'replace' ? t('messages.preset_replaced_selection') : t('messages.preset_added_selection'), 'ok');
+  }
+  function setUsualOptionsForPlayer(playerId){
+    const raw = playerUsualById.get(String(playerId || '')) || '';
+    const parsed = parseUsualTimes(raw);
+    currentUsualRules = parsed.rules;
+
+    if(!raw.trim()){
+      elPreset.innerHTML = `<option value="">${escapeHtml(t('select.no_usual'))}</option>`;
+      syncAvailabilityActionState();
+      return;
+    }
+    if(!currentUsualRules.length){
+      elPreset.innerHTML = `<option value="">${escapeHtml(t('select.invalid_usual'))}</option>`;
+      syncAvailabilityActionState();
+      return;
+    }
+
+    const options = [];
+    if(currentUsualRules.length > 1){
+      options.push(`<option value="__all__">${escapeHtml(t('select.all_usual'))}</option>`);
+    }
+    options.push(...currentUsualRules.map(r =>
+      `<option value="${escapeAttr(r.id)}">${escapeHtml(formatUsualRuleLabel(r))}</option>`
+    ));
+    elPreset.innerHTML = options.join('');
+    syncAvailabilityActionState();
+  }
+  function matchAnyRule(d, rules, mode){
+    const parts = getDisplayDateTimeParts(d);
+    if(!parts) return false;
+    return matchAnyRuleSlot(parts.weekday, parts.hour * 60 + parts.minute, rules, mode);
+  }
+  function matchAnyRuleSlot(day, mins, rules, mode){
+    if(!rules || !rules.length) return false;
+    const weekday = Number(day);
+    const minuteOfDay = Number(mins);
+    return rules.some(r => {
+      if (mode && r.kind !== mode) return false;
+      return r.days.has(weekday) && minuteOfDay >= r.startMin && minuteOfDay < r.endMin;
+    });
+  }
+  function parseUsualTimes(raw){
+    const text = String(raw || '').trim();
+    if(!text) return { rules: [] };
+
+    const rules = [];
+    const parts = text.split(';').map(s => s.trim()).filter(Boolean);
+    let idx = 0;
+
+    for (const part of parts) {
+      const isExclude = /^unavailable\s*:/i.test(part);
+      const cleaned = isExclude ? part.replace(/^unavailable\s*:/i, '').trim() : part;
+      const m = cleaned.match(/^(.*?)(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$/);
+      if(!m) continue;
+
+      const daySpec = String(m[1] || '').trim();
+      const start = m[2];
+      const end = m[3];
+
+      const days = parseDaySpec(daySpec);
+      if(!days || !days.size) continue;
+
+      const startMin = toMinutes_(start);
+      const endMin = toMinutes_(end);
+      if(startMin === null || endMin === null || endMin <= startMin) continue;
+
+      rules.push({
+        id: `r${idx++}`,
+        daySpec,
+        start,
+        end,
+        days,
+        startMin,
+        endMin,
+        kind: isExclude ? 'exclude' : 'include'
+      });
+    }
+    return { rules };
+  }
+  function toMinutes_(hhmm){
+    const m = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/);
+    if(!m) return null;
+    const h = Number(m[1]);
+    const min = Number(m[2]);
+    if(!Number.isFinite(h) || !Number.isFinite(min)) return null;
+    if(h < 0 || h > 23 || min < 0 || min > 59) return null;
+    return h * 60 + min;
+  }
+  function parseDaySpec(spec){
+    const s = String(spec || '').trim();
+    if(!s) return null;
+
+    const map = {
+      sun:0, sunday:0,
+      mon:1, monday:1,
+      tue:2, tues:2, tuesday:2,
+      wed:3, weds:3, wednesday:3,
+      thu:4, thur:4, thurs:4, thursday:4,
+      fri:5, friday:5,
+      sat:6, saturday:6
+    };
+
+    const lower = s.toLowerCase();
+    if(lower === 'all' || lower === 'daily' || lower === 'everyday'){
+      return new Set([0,1,2,3,4,5,6]);
+    }
+    if(lower === 'weekdays'){
+      return new Set([1,2,3,4,5]);
+    }
+    if(lower === 'weekends'){
+      return new Set([0,6]);
+    }
+
+    const out = new Set();
+
+    const parts = lower.split(',').map(x => x.trim()).filter(Boolean);
+    for (const p of parts) {
+      const range = p.split('-').map(x => x.trim()).filter(Boolean);
+      if(range.length === 1){
+        const d = map[range[0]];
+        if (d !== undefined) out.add(d);
+      } else if (range.length === 2){
+        const a = map[range[0]];
+        const b = map[range[1]];
+        if (a === undefined || b === undefined) continue;
+        if (a <= b) {
+          for (let i = a; i <= b; i++) out.add(i);
+        } else {
+          for (let i = a; i <= 6; i++) out.add(i);
+          for (let i = 0; i <= b; i++) out.add(i);
+        }
+      }
+    }
+
+    return out.size ? out : null;
+  }
+  function makeHead(t,c){
+    const d=document.createElement('div');
+    d.textContent=t;
+    d.className='head '+c;
+    return d;
+  }
+
+  function refreshWhoCanPlay(campaignRef, opts){
+    const ref = String(campaignRef || '').trim();
+    if(inflightWhoRequestId && inflightWhoRequestRef === ref) return;
+    const showBusy = !!(opts && opts.showBusy);
+    const showLoading = !!(opts && opts.showLoading);
+    const requestId = ++whoRequestSeq;
+    activeWhoRequestId = requestId;
+    inflightWhoRequestId = requestId;
+    inflightWhoRequestRef = ref;
+    const perf = startPerf('client.whoGrid');
+    if(showLoading){
+      elWhoGrid.innerHTML = `<div class="head corner">${escapeHtml(t('grid.date_time'))}</div><div class="head">${escapeHtml(t('common.loading'))}</div>`;
+    }
+    if(showBusy){
+      startBusy(t('busy.loading_who_grid'));
+    }
+    google.script.run
+      .withSuccessHandler(data => {
+        const isStale = requestId !== activeWhoRequestId;
+        if(inflightWhoRequestId === requestId){
+          inflightWhoRequestId = 0;
+          inflightWhoRequestRef = '';
+        }
+        if(showBusy) endBusy();
+        if(isStale){
+          endPerf(perf, 'stale');
+          return;
+        }
+        whoDataLoaded = true;
+        renderWhoCanPlay(data);
+        endPerf(perf);
+      })
+      .withFailureHandler(err => {
+        const isStale = requestId !== activeWhoRequestId;
+        if(inflightWhoRequestId === requestId){
+          inflightWhoRequestId = 0;
+          inflightWhoRequestRef = '';
+        }
+        if(showBusy) endBusy();
+        if(isStale){
+          endPerf(perf, 'stale-failed');
+          return;
+        }
+        const msg = (err && err.message) ? err.message : String(err);
+        if(showLoading){
+          elWhoGrid.innerHTML = `<div class="head corner">${escapeHtml(t('grid.date_time'))}</div><div class="head">${escapeHtml(t('common.failed_to_load', { msg }))}</div>`;
+        } else {
+          setStatus(t('who.refresh_failed', { msg }));
+        }
+        endPerf(perf, 'failed');
+      })
+      .getWhoCanPlayGrid(ref);
+  }
+
+  function whoCellColor(item){
+    if(item.is_locked) return 'rgba(255,220,90,.22)';
+    const req = Number(item.required_count || 0);
+    const threshold = Number(item.playable_threshold || req || 0);
+    const have = Number(item.available_count || 0);
+    if(req <= 0) return 'rgba(255,120,120,.22)';
+    if(have >= threshold) return 'rgba(120,255,160,.22)';
+
+    const ratioBase = threshold > 0 ? threshold : req;
+    const ratio = Math.max(0, Math.min(1, have / ratioBase));
+    const from = { r:255, g:120, b:120 }; // red
+    const to = { r:130, g:170, b:255 };   // blue
+    const r = Math.round(from.r + (to.r - from.r) * ratio);
+    const g = Math.round(from.g + (to.g - from.g) * ratio);
+    const b = Math.round(from.b + (to.b - from.b) * ratio);
+    return `rgba(${r},${g},${b},.22)`;
+  }
+
+  function renderWhoCanPlay(data){
+    lastWhoGridData = data || null;
+    persistDashboardCache();
+    const campaigns = (data && data.campaigns) ? data.campaigns : [];
+    const rows = (data && data.slots) ? data.slots : [];
+    const selectedCamp = data && data.selected_campaign ? data.selected_campaign : null;
+
+    if(!campaigns.length){
+      elWhoCampaign.innerHTML = `<option value="">${escapeHtml(t('select.no_campaigns'))}</option>`;
+      elWhoRule.textContent = '';
+      elWhoGrid.innerHTML = `<div class="head corner">${escapeHtml(t('grid.date_time'))}</div><div class="head">${escapeHtml(t('who.no_campaigns_configured'))}</div>`;
+      return;
+    }
+
+    const nextWhoValue = (selectedCamp && (selectedCamp.campaign_id || selectedCamp.campaign)) || campaigns[0].campaign_id || campaigns[0].campaign;
+    whoCampaignValue = String(nextWhoValue || '');
+    persistSessionCache();
+
+    elWhoCampaign.innerHTML = campaigns.map(c => {
+      const v = c.campaign_id || c.campaign;
+      const threshold = Number(c.playable_threshold || c.required_count || 0);
+      const label = threshold === Number(c.required_count || 0)
+        ? `${c.campaign} (${c.required_count})`
+        : `${c.campaign} (${threshold}/${c.required_count})`;
+      return `<option value="${escapeAttr(v)}">${escapeHtml(label)}</option>`;
+    }).join('');
+    elWhoCampaign.value = whoCampaignValue;
+
+    if(selectedCamp){
+      const req = Number(selectedCamp.required_count || 0);
+      const threshold = Number(selectedCamp.playable_threshold || req || 0);
+      elWhoRule.textContent = threshold === req
+        ? t('who.rule_all', { req })
+        : t('who.rule_threshold', { threshold, req });
+    } else {
+      elWhoRule.textContent = '';
+    }
+
+    if(!rows.length){
+      elWhoGrid.innerHTML = `<div class="head corner">${escapeHtml(t('grid.date_time'))}</div><div class="head">${escapeHtml(t('who.no_upcoming_slots'))}</div>`;
+      return;
+    }
+
+    const byDate = new Map();
+    const times = new Map();
+
+    rows.forEach(r => {
+      const d = new Date(r.start_utc);
+      if(isNaN(d)) return;
+      const parts = getDisplayDateTimeParts(d);
+      if(!parts) return;
+      const day = formatDisplayDate(d);
+      const mins = parts.hour * 60 + parts.minute;
+      if(shouldHideSlotMinute(mins)) return;
+      const label = timeLabelForDate(d);
+      times.set(mins, label);
+      if(!byDate.has(day)) byDate.set(day, []);
+      byDate.get(day).push({ mins, row:r });
+    });
+
+    const timeArr = [...times.entries()].sort((a,b) => a[0] - b[0]);
+    if(!timeArr.length){
+      elWhoGrid.innerHTML = `<div class="head corner">${escapeHtml(t('grid.date_time'))}</div><div class="head">${escapeHtml(t('who.no_upcoming_slots'))}</div>`;
+      return;
+    }
+    const metrics = getGridMetrics(elWhoGrid, timeArr.length, 200, 80);
+    const whoDateCol = metrics.dateCol;
+    const whoSlotCol = metrics.slotCol;
+    elWhoGrid.style.gridTemplateColumns = `${whoDateCol}px repeat(${timeArr.length},${whoSlotCol}px)`;
+    elWhoGrid.style.width = `${metrics.totalWidth}px`;
+    elWhoGrid.style.minWidth = `${metrics.totalWidth}px`;
+
+    const frag = document.createDocumentFragment();
+    frag.appendChild(makeHead(t('grid.date_time'),'corner'));
+    timeArr.forEach(([mins, label]) => {
+      const head = makeHead(label,'head');
+      head.classList.add(timeBandClass(mins));
+      frag.appendChild(head);
+    });
+
+    for(const [day, arr] of byDate){
+      const h = document.createElement('div');
+      h.className = 'head dateHead';
+      h.textContent = day;
+      frag.appendChild(h);
+
+      const map = new Map(arr.map(a => [a.mins, a.row]));
+      timeArr.forEach(([m]) => {
+        const c = document.createElement('div');
+        c.className = 'cell slotCell whoCell';
+        const it = map.get(m);
+        if(it){
+          const req = Number(it.required_count || 0);
+          const threshold = Number(it.playable_threshold || req || 0);
+          const have = Number(it.available_count || 0);
+          c.textContent = threshold === req ? `${have}/${req}` : `${have}/${threshold}`;
+          c.style.background = whoCellColor(it);
+          if(it.is_locked) c.classList.add('lockedCell');
+          const lockMsg = it.is_locked ? `\n${t('who.tooltip_locked_by', { campaign: it.locked_campaign || t('common.unknown') })}` : '';
+          const av = (it.available_players || []).join(', ') || t('common.none');
+          const miss = (it.missing_players || []).join(', ') || t('common.none');
+          const ruleMsg = threshold === req
+            ? t('who.needs_all', { req })
+            : t('who.needs_threshold', { threshold, req });
+          c.title = `${t('who.tooltip_available', { players: av })}\n${t('who.tooltip_missing', { players: miss })}\n${t('who.tooltip_rule', { rule: ruleMsg })}${lockMsg}`;
+        } else {
+          c.textContent = '';
+        }
+        frag.appendChild(c);
+      });
+    }
+
+    elWhoGrid.innerHTML = '';
+    elWhoGrid.appendChild(frag);
+  }
+</script>
+</body>
+</html>

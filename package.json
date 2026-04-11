@@ -1,0 +1,22 @@
+{
+  "name": "dnd-scheduler-github",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GitHub-ready Google Apps Script repository for the DnD Scheduler web app.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node ./scripts/validate-repo.mjs",
+    "login": "clasp login",
+    "status": "clasp status",
+    "pull": "clasp pull",
+    "push": "clasp push",
+    "version": "clasp version",
+    "deploy": "clasp deploy",
+    "open": "clasp open"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.5.0"
+  }
+}
