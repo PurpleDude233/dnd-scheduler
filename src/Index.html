@@ -1227,7 +1227,7 @@
   const LANG_STORAGE_KEY = 'dnd.lang';
   const MOBILE_MODE_STORAGE_KEY = 'dnd.mobileMode';
   const MOBILE_SHEET_MODE_STORAGE_KEY = 'dnd.mobileSheetMode';
-  const BROWSER_CACHE_SCHEMA_VERSION = '1';
+  const BROWSER_CACHE_SCHEMA_VERSION = '2';
   const BROWSER_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
   const SESSION_BROWSER_CACHE_KEY = `dnd.cache.session.${BROWSER_CACHE_SCHEMA_VERSION}`;
   const DASHBOARD_BROWSER_CACHE_KEY = `dnd.cache.dashboard.${BROWSER_CACHE_SCHEMA_VERSION}`;
@@ -1486,6 +1486,12 @@
       }));
     } catch(_){}
   }
+  function deleteBrowserCache(key){
+    if(!key) return;
+    try{
+      localStorage.removeItem(key);
+    } catch(_){}
+  }
   function persistSessionCache(){
     writeBrowserCache(SESSION_BROWSER_CACHE_KEY, {
       selectedPlayerId: String(selectedPlayerId || getSelectedPlayerControlValue() || '').trim(),
@@ -1518,8 +1524,12 @@
     if(!pid) return null;
     const existing = readBrowserCache(browserPlayerCacheKey(pid)) || {};
     const merged = Object.assign({}, existing, patch || {}, { playerId: pid });
-    if((!merged.gridData || !Array.isArray(merged.gridData.rows) || !Array.isArray(merged.gridData.timeMins)) && existing.gridData){
+    if(!hasUsableGridPayload(merged.gridData) && hasUsableGridPayload(existing.gridData)){
       merged.gridData = existing.gridData;
+    }
+    if(!hasUsableGridPayload(merged.gridData)){
+      merged.gridData = null;
+      merged.slotDataKey = '';
     }
     return merged;
   }
@@ -1530,7 +1540,7 @@
     writeBrowserCache(browserPlayerCacheKey(pid), {
       playerId: pid,
       slotDataKey: String(slotDataKey || ''),
-      gridData: payload && Array.isArray(payload.rows) ? payload : null,
+      gridData: hasUsableGridPayload(payload) ? payload : null,
       selectedSlotIds: Array.from(selected).sort((a,b) => a - b),
       lockedSlotIds: Array.from(lockedIds).sort((a,b) => a - b),
       lockedSlotCampaigns: Array.from(lockedCampaignById.entries()).map(([slot_id, campaign]) => ({
@@ -1607,13 +1617,17 @@
     if(!playersCache.some(p => String(p.player_id || '').trim() === pid)) return false;
     const cached = readBrowserCache(browserPlayerCacheKey(pid));
     if(!cached || typeof cached !== 'object') return false;
+    if(!hasUsableGridPayload(cached.gridData)){
+      deleteBrowserCache(browserPlayerCacheKey(pid));
+      return false;
+    }
     return applyLoadedPlayerState(pid, cached, { resetMobileMode:true });
   }
   function refreshCachedPlayerStateInBackground(playerId){
     const pid = String(playerId || '').trim();
     if(!pid) return;
     const requestId = ++backgroundPlayerRefreshSeq;
-    const requestedSlotDataKey = String(slotDataKey || '');
+    const requestedSlotDataKey = getKnownSlotDataKeyForRequest();
 
     google.script.run
       .withSuccessHandler(d => {
@@ -1699,7 +1713,8 @@
     applyDashboardData({ init: BOOTSTRAP_DATA });
 
     const sessionState = restoreCachedSessionState();
-    const hadCachedPlayer = restoreCachedPlayerState(sessionState.currentPlayerId);
+    const cachedPlayerId = String(sessionState.currentPlayerId || '').trim();
+    restoreCachedPlayerState(cachedPlayerId);
     const hadCachedDashboard = restoreCachedDashboardState();
 
     const initialPanelOptions = hadCachedDashboard
@@ -1707,7 +1722,7 @@
       : buildDashboardLoadOptions();
     const needsInitialPanelLoad = initialPanelOptions.includeCampaigns || initialPanelOptions.includeTracker || initialPanelOptions.includeWho;
     if(!needsInitialPanelLoad){
-      if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+      if(cachedPlayerId) refreshCachedPlayerStateInBackground(currentPlayerId || cachedPlayerId);
       endPerf(bootPerf, meta || 'panels:0');
       return;
     }
@@ -1720,7 +1735,7 @@
       .withSuccessHandler(data => {
         applyDashboardData(data);
         if(!hadCachedDashboard) endBusy();
-        if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+        if(cachedPlayerId) refreshCachedPlayerStateInBackground(currentPlayerId || cachedPlayerId);
         endPerf(panelPerf);
         endPerf(bootPerf, meta || 'panels:1');
       })
@@ -1729,7 +1744,7 @@
         setStatus(t('messages.initial_load_failed', { msg }));
         toast(t('messages.initial_load_failed', { msg }), 'err');
         if(!hadCachedDashboard) endBusy();
-        if(hadCachedPlayer) refreshCachedPlayerStateInBackground(currentPlayerId);
+        if(cachedPlayerId) refreshCachedPlayerStateInBackground(currentPlayerId || cachedPlayerId);
         endPerf(panelPerf, 'failed');
         endPerf(bootPerf, `${meta || 'panels:1'} failed`);
       })
@@ -2191,6 +2206,18 @@
       })).filter(row => row.day)
     };
   }
+  function hasUsableGridPayload(payload){
+    if(!payload || !Array.isArray(payload.rows) || !Array.isArray(payload.timeMins)) return false;
+    if(!payload.rows.length || !payload.timeMins.length) return false;
+    return payload.rows.some(row =>
+      row &&
+      Array.isArray(row.slots) &&
+      row.slots.some(item =>
+        Number.isFinite(Number(item && item.id)) &&
+        Number.isFinite(Number(item && item.mins))
+      )
+    );
+  }
   function buildGridPayloadFromSlotsFallback(rawSlots){
     const byDate = new Map();
     const times = new Set();
@@ -2230,6 +2257,11 @@
     return (gridData && Array.isArray(gridData.rows))
       ? gridData
       : buildGridPayloadFromSlotsFallback(slots);
+  }
+  function getKnownSlotDataKeyForRequest(){
+    return hasUsableGridPayload(getBaseGridPayload())
+      ? String(slotDataKey || '')
+      : '';
   }
   function hasAvailabilitySlots(){
     const payload = getBaseGridPayload();
@@ -3202,7 +3234,7 @@
         endBusy();
         endPerf(perf, 'failed');
       })
-      .getInitData(pid, { slotDataKey });
+      .getInitData(pid, { slotDataKey: getKnownSlotDataKeyForRequest() });
   }
 
   function refreshCurrentLockState(){
@@ -3237,7 +3269,7 @@
         endBusy();
         endPerf(perf, 'failed');
       })
-      .getInitData(currentPlayerId, { slotDataKey });
+      .getInitData(currentPlayerId, { slotDataKey: getKnownSlotDataKeyForRequest() });
   }
 
   function save(isAuto){
