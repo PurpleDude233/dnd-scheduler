@@ -1008,7 +1008,7 @@
       <button id="mobileModeBtn" class="btn mobileModeBtn" type="button"></button>
       <button id="langEnBtn" class="btn langBtn" type="button">EN</button>
       <button id="langPlBtn" class="btn langBtn" type="button">PL</button>
-      <button id="refreshBtn" class="btn" type="button" onclick="location.reload()" data-i18n="common.refresh">Refresh</button>
+      <button id="refreshBtn" class="btn" type="button" data-i18n="common.refresh">Refresh</button>
     </div>
   </div>
 
@@ -1312,6 +1312,7 @@
   const elLangEn = document.getElementById('langEnBtn');
   const elLangPl = document.getElementById('langPlBtn');
   const elMobileMode = document.getElementById('mobileModeBtn');
+  const elRefresh = document.getElementById('refreshBtn');
   const mobilePageButtons = Array.from(document.querySelectorAll('[data-mobile-page-btn]'));
 
   let slots = [];
@@ -1406,6 +1407,7 @@
   elLangEn.onclick = () => setLanguage('en');
   elLangPl.onclick = () => setLanguage('pl');
   elMobileMode.onclick = cycleMobileModePreference;
+  elRefresh.onclick = refreshApp;
   elMobileViewMode.onclick = () => setMobileSheetMode('view');
   elMobileEditMode.onclick = () => setMobileSheetMode('edit');
   mobilePageButtons.forEach(btn => {
@@ -1691,6 +1693,13 @@
       includeWho: !availabilityOnly && (whoDataLoaded || isPanelOpen(elWhoPanel)),
       whoCampaignRef: availabilityOnly ? '' : (whoCampaignValue || '')
     };
+  }
+  function refreshApp(){
+    try{
+      window.location.reload();
+    } catch(_){
+      window.location.href = window.location.href;
+    }
   }
   function bootApp(){
     const bootPerf = startPerf('client.boot');
